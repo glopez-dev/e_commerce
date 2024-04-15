@@ -1,0 +1,45 @@
+.ctn1 {
+    background-color: red;
+    display: flex;
+    height: 13%;
+    width: 100%;
+    justify-content: center;
+    border-bottom: 1px solid black;
+
+
+
+
+}
+
+.ctn2 {
+    background-color: blue;
+    display: flex;
+    height: 100%;
+    width: 95%;
+    align-items: center;
+    gap: 10px;
+    color: white;
+    justify-content: space-between;
+
+
+
+}
+
+.gauche {
+    display: flex;
+    gap: 10px;
+}
+
+.droite {
+    display: flex;
+    gap: 10px;
+}
+
+.logo {
+    height: 40px;
+}
+
+p {
+    margin: 0;
+    padding: 0;
+}
