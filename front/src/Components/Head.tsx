@@ -1,6 +1,12 @@
 import React from 'react';
 import Style from '../Styles/Header.module.css';
 import vinted from '../assets/Vinted.png';
+import Person2OutlinedIcon from '@mui/icons-material/Person2Outlined';
+import Menu from './SideBar';
+
+
+
+
 
 const Head = () => {
     return (
@@ -11,22 +17,23 @@ const Head = () => {
 
                 <div className={Style.gauche}>
 
-                    <p>menu</p>
-                    <p>Recherche</p>
+                    <Menu />
+                    <p>Menu</p>
                     <div />
 
                 </div>
 
                 <div className={Style.mid}>
 
-                    <img className={Style.logo} src={vinted} />
+                    {/* <img className={Style.logo} src={vinted} /> */}
 
                 </div>
 
                 <div className={Style.droite}>
-
-                    <p>contactez-nous</p>
+                    <Person2OutlinedIcon sx={{ color: '#444' }} />
+                    <p> compte</p>
                     <p>WhishList</p>
+
                     <div />
 
                 </div>
