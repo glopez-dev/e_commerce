@@ -31,7 +31,6 @@ class UserController extends AbstractController
              ->setLogin($content['login'])
              ->setFirstname($content['firstname'])
              ->setLastname($content['lastname']);
-
         try {
             $em->persist($user);
             $em->flush();
@@ -58,6 +57,19 @@ class UserController extends AbstractController
             return new JsonResponse(['token' => $tokenManager->create($user)], Response::HTTP_OK);
         }
         return new JsonResponse('Wrong login or password', Response::HTTP_UNAUTHORIZED);
+    }
+
+    #[Route(path: '/api/users', name: 'app_get_user', methods: ['GET'])]
+    public function getCurrentUser(Request $request) : JsonResponse
+    {
+        if (null === $request->headers->get('authorization')) {
+            return new JsonResponse([
+                'message' => 'Token invalid',
+                'code' => Response::HTTP_UNAUTHORIZED
+            ], Response::HTTP_UNAUTHORIZED);
+        }
+        $user = $this->getUser();
+        return $this->json($user, Response::HTTP_OK);
     }
 
     #[Route(path: '/api/logout', name: 'app_logout')]
