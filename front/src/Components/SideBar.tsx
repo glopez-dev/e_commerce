@@ -13,6 +13,11 @@ import MailIcon from '@mui/icons-material/Mail';
 import MenuIcon from '@mui/icons-material/Menu';
 import style from '../Styles/SideBar.module.css'
 
+/**
+ * Renders a temporary drawer component.
+ *
+ * @return {JSX.Element} The temporary drawer component.
+ */
 export default function TemporaryDrawer() {
     const [open, setOpen] = React.useState(false);
 
@@ -21,7 +26,7 @@ export default function TemporaryDrawer() {
     };
 
     const DrawerList = (
-        <Box sx={{ width: 250 }} role="presentation" onClick={toggleDrawer(false)}>
+        <Box sx={{ width: 600 }} role="presentation" onClick={toggleDrawer(false)}>
             <List>
                 {['Inbox', 'Starred', 'Send email', 'Drafts'].map((text, index) => (
                     <ListItem key={text} disablePadding>
@@ -53,7 +58,8 @@ export default function TemporaryDrawer() {
     return (
         <>
             <Button onClick={toggleDrawer(true)} className={style.btn}>
-                <MenuIcon sx={{ color: 'black', fontSize: 30 }} />
+                <MenuIcon sx={{ color: 'black', fontSize: 35 }} />
+                <p style={{ color: 'black', fontSize: 15 }}>Menu</p>
             </Button>
             <Drawer open={open} onClose={toggleDrawer(false)}>
                 {DrawerList}

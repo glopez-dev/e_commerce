@@ -1,8 +1,9 @@
 .containers {
     display: flex;
-    background-color: pink;
-    height: 100vh;
+    background-color: #f6f1eb;
 
+    width: 100%;
+    flex-direction: column;
 
 
 }

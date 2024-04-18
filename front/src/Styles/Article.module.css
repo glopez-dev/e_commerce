@@ -1,0 +1,70 @@
+.containers {
+
+    margin-top: 100px;
+
+}
+
+
+@import url('https://fonts.googleapis.com/css2?family=Orator+W01&display=swap');
+
+.title {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 20px;
+    color: #444444;
+    margin-bottom: 70px;
+
+}
+
+.article {
+
+
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: top;
+
+
+
+
+
+
+    gap: 20px;
+    padding-bottom: 50px;
+
+
+
+}
+
+.card {
+    display: flex;
+    flex-wrap: wrap;
+
+    justify-content: center;
+
+    gap: 20px;
+    flex-direction: row;
+    width: 90%;
+
+
+
+
+
+
+
+
+}
+
+
+
+h1 {
+    font-size: 35px;
+    margin: 0;
+
+}
+
+p {
+    font-size: 20px;
+}
