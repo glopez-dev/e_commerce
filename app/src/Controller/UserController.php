@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Entity\User;
+use App\Services\Security;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Exception\ORMException;
 use Lexik\Bundle\JWTAuthenticationBundle\Services\JWTTokenManagerInterface;
@@ -13,9 +14,10 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Routing\Attribute\Route;
 
+#[Route('/api')]
 class UserController extends AbstractController
 {
-    #[Route('/api/register', name: 'register_user', methods: ['POST'])]
+    #[Route('/register', name: 'register_user', methods: ['POST'])]
     public function register(Request $request,
                              JWTTokenManagerInterface $tokenManager,
                              UserPasswordHasherInterface $passwordHasher,
@@ -44,7 +46,7 @@ class UserController extends AbstractController
             ], Response::HTTP_CREATED);
     }
 
-    #[Route(path: '/api/login', name: 'app_login', methods: ['POST'])]
+    #[Route(path: '/login', name: 'app_login', methods: ['POST'])]
     public function login(Request $request,
                              JWTTokenManagerInterface $tokenManager,
                              UserPasswordHasherInterface $passwordHasher,
@@ -59,20 +61,37 @@ class UserController extends AbstractController
         return new JsonResponse('Wrong login or password', Response::HTTP_UNAUTHORIZED);
     }
 
-    #[Route(path: '/api/users', name: 'app_get_user', methods: ['GET'])]
+    #[Route(path: '/users', name: 'app_get_user', methods: ['GET'])]
     public function getCurrentUser(Request $request) : JsonResponse
     {
-        if (null === $request->headers->get('authorization')) {
-            return new JsonResponse([
-                'message' => 'Token invalid',
-                'code' => Response::HTTP_UNAUTHORIZED
-            ], Response::HTTP_UNAUTHORIZED);
-        }
+        // Verify if the jwt token is in the request
+        Security::isAuthed($request);
+
         $user = $this->getUser();
-        return $this->json($user, Response::HTTP_OK);
+        return $this->json($user->getUserDisplay(), Response::HTTP_OK);
+    }
+    #[Route(path: '/users', name: 'app_update_user', methods: ['PUT'])]
+    public function updateCurrentUser(Request $request, EntityManagerInterface $em) : JsonResponse
+    {
+        // Verify if the jwt token is in the request
+        Security::isAuthed($request);
+        $user = $this->getUser();
+        $content = json_decode($request->getContent(), true);
+        $user->setEmail($content['email'])
+            ->setLogin($content['login'])
+            ->setFirstname($content['firstname'])
+            ->setLastname($content['lastname']);
+
+        try {
+            $em->persist($user);
+            $em->flush();
+        } catch (ORMException $e) {
+            return new JsonResponse($e->getMessage(), Response::HTTP_BAD_REQUEST);
+        }
+        return $this->json($user->getUserDisplay(), Response::HTTP_OK);
     }
 
-    #[Route(path: '/api/logout', name: 'app_logout')]
+    #[Route(path: '/logout', name: 'app_logout')]
     public function logout(): void
     {
         throw new \LogicException('This method can be blank - it will be intercepted by the logout key on your firewall.');
