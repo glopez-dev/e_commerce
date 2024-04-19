@@ -13,11 +13,20 @@
 Docker
 
 ```
+cd app
 docker compose -f docker-compose.dev.yml up -d
+```
+
+Build The Database
+
+```
+cd app
+make migrate
 ```
 
 JWT
 
 ```
+cd app
 php bin/console lexik:jwt:generate-keypair
 ```
