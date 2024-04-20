@@ -21,36 +21,43 @@ class UserController extends AbstractController
     public function register(Request $request,
                              JWTTokenManagerInterface $tokenManager,
                              UserPasswordHasherInterface $passwordHasher,
-                             EntityManagerInterface $em)
-    : JsonResponse
+                             EntityManagerInterface $em
+    ) : JsonResponse
     {
         $content = json_decode($request->getContent(), true);
 
+        // Verify if login or email is already use by an other user
+        $this->isLoginOrEmailUsed($content, $em);
+
         $user = new User();
+
         $hashedPassword = $passwordHasher->hashPassword($user, $content['password']);
         $user->setPassword($hashedPassword)
              ->setEmail($content['email'])
              ->setLogin($content['login'])
              ->setFirstname($content['firstname'])
              ->setLastname($content['lastname']);
+
         try {
             $em->persist($user);
             $em->flush();
         } catch (ORMException $e) {
-            return new JsonResponse($e->getMessage(), Response::HTTP_BAD_REQUEST);
+            return new JsonResponse([
+                'message' => $e->getMessage(),
+            ], Response::HTTP_BAD_REQUEST);
         }
 
         return new JsonResponse([
-            'message' => 'User successfully created',
+            'message' => 'Compte créé avec succès.',
             'token' => $tokenManager->create($user)
             ], Response::HTTP_CREATED);
     }
 
     #[Route(path: '/login', name: 'app_login', methods: ['POST'])]
     public function login(Request $request,
-                             JWTTokenManagerInterface $tokenManager,
-                             UserPasswordHasherInterface $passwordHasher,
-                             EntityManagerInterface $em
+                          JWTTokenManagerInterface $tokenManager,
+                          UserPasswordHasherInterface $passwordHasher,
+                          EntityManagerInterface $em
     ) : JsonResponse
     {
         $content = json_decode($request->getContent(), true);
@@ -58,7 +65,9 @@ class UserController extends AbstractController
         if ($passwordHasher->isPasswordValid($user, $content['password'])) {
             return new JsonResponse(['token' => $tokenManager->create($user)], Response::HTTP_OK);
         }
-        return new JsonResponse('Wrong login or password', Response::HTTP_UNAUTHORIZED);
+        return new JsonResponse([
+            'message' => 'Mauvais nom d\'utilisateur ou mot de passe.'
+        ], Response::HTTP_UNAUTHORIZED);
     }
 
     #[Route(path: '/users', name: 'app_get_user', methods: ['GET'])]
@@ -75,8 +84,13 @@ class UserController extends AbstractController
     {
         // Verify if the jwt token is in the request
         Security::isAuthed($request);
+
         $user = $this->getUser();
         $content = json_decode($request->getContent(), true);
+
+        // Verify if login or email is already use by an other user
+        $this->isLoginOrEmailUsed($content, $em);
+
         $user->setEmail($content['email'])
             ->setLogin($content['login'])
             ->setFirstname($content['firstname'])
@@ -95,5 +109,20 @@ class UserController extends AbstractController
     public function logout(): void
     {
         throw new \LogicException('This method can be blank - it will be intercepted by the logout key on your firewall.');
+    }
+
+    public function isLoginOrEmailUsed(array $content, EntityManagerInterface $em) : JsonResponse
+    {
+        if (null !== $em->getRepository(User::class)->findOneBy(['email' => $content['email']])) {
+            return new JsonResponse([
+                'message' => 'Cet email est déjà associé à un compte.',
+            ], Response::HTTP_BAD_REQUEST);
+        }
+
+        if (null !== $em->getRepository(User::class)->findOneBy(['login' => $content['login']])) {
+            return new JsonResponse([
+                'message' => 'Ce nom d\'utilisateur est déjà utilisé.',
+            ], Response::HTTP_BAD_REQUEST);
+        }
     }
 }
