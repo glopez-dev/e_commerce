@@ -30,3 +30,6 @@ database: ## Créer la base de donnée
 
 crud: ## Créer le crud pour une entité
 	$(PHP) make:crud
+
+jwt: ## Créer les clefs private et public pour JWT
+	$(PHP) lexik:jwt:generate-keypair --overwrite
