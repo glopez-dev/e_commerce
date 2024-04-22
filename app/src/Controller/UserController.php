@@ -7,6 +7,13 @@ use App\Services\Security;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Exception\ORMException;
 use Lexik\Bundle\JWTAuthenticationBundle\Services\JWTTokenManagerInterface;
+use Nelmio\ApiDocBundle\Model\Model;
+use OpenApi\Attributes\Items;
+use OpenApi\Attributes\JsonContent;
+use OpenApi\Attributes\Parameter;
+use OpenApi\Attributes\Schema;
+use OpenApi\Attributes\Tag;
+use PHPStan\PhpDocParser\Ast\PhpDoc\RequireExtendsTagValueNode;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -17,14 +24,53 @@ use Symfony\Component\Routing\Attribute\Route;
 #[Route('/api')]
 class UserController extends AbstractController
 {
-    #[Route('/register', name: 'register_user', methods: ['POST'])]
+
+    #[Route('/register', name: 'app_register_user', methods: ['POST'])]
+    #[\OpenApi\Attributes\Response(
+        response: Response::HTTP_OK,
+        description: 'Register a new user and return his JWT Token',
+        content: new JsonContent(
+            type: 'string',
+        )
+    )]
+    #[Parameter(
+        name: 'login',
+        description: 'The user login',
+        in: 'header',
+        schema: new Schema(type: 'string')
+    )]
+    #[Parameter(
+        name: 'email',
+        description: 'The user email',
+        in: 'header',
+        schema: new Schema(type: 'string')
+    )]
+    #[Parameter(
+        name: 'password',
+        description: 'The user password',
+        in: 'header',
+        schema: new Schema(type: 'string')
+    )]
+    #[Parameter(
+        name: 'firstname',
+        description: 'The user first name',
+        in: 'header',
+        schema: new Schema(type: 'string')
+    )]
+    #[Parameter(
+        name: 'lastname',
+        description: 'The user last name',
+        in: 'header',
+        schema: new Schema(type: 'string')
+    )]
+    #[Tag(name: 'User')]
     public function register(Request $request,
                              JWTTokenManagerInterface $tokenManager,
                              UserPasswordHasherInterface $passwordHasher,
                              EntityManagerInterface $em
     ) : JsonResponse
     {
-        $content = json_decode($request->getContent(), true);
+        $content = $this->getContentFromRequest($request, 'app_register_user' );
 
         // Verify if login or email is already use by an other user
         $this->isLoginOrEmailUsed($content, $em);
@@ -37,7 +83,6 @@ class UserController extends AbstractController
              ->setLogin($content['login'])
              ->setFirstname($content['firstname'])
              ->setLastname($content['lastname']);
-
         try {
             $em->persist($user);
             $em->flush();
@@ -54,13 +99,34 @@ class UserController extends AbstractController
     }
 
     #[Route(path: '/login', name: 'app_login', methods: ['POST'])]
+    #[\OpenApi\Attributes\Response(
+        response: Response::HTTP_OK,
+        description: 'Log in the user and return his JWT Token',
+        content: new JsonContent(
+            type: 'string',
+        )
+    )]
+    #[Parameter(
+        name: 'login',
+        description: 'The user login',
+        in: 'header',
+        schema: new Schema(type: 'string')
+    )]
+    #[Parameter(
+        name: 'password',
+        description: 'The user password',
+        in: 'header',
+        schema: new Schema(type: 'string')
+    )]
+    #[Tag(name: 'User')]
     public function login(Request $request,
                           JWTTokenManagerInterface $tokenManager,
                           UserPasswordHasherInterface $passwordHasher,
                           EntityManagerInterface $em
     ) : JsonResponse
     {
-        $content = json_decode($request->getContent(), true);
+        $content = $this->getContentFromRequest($request, 'app_login' );
+
         $user = $em->getRepository(User::class)->findOneBy(['login' => $content['login']]);
         if ($passwordHasher->isPasswordValid($user, $content['password'])) {
             return new JsonResponse(['token' => $tokenManager->create($user)], Response::HTTP_OK);
@@ -71,6 +137,16 @@ class UserController extends AbstractController
     }
 
     #[Route(path: '/users', name: 'app_get_user', methods: ['GET'])]
+    #[\OpenApi\Attributes\Response(
+        response: Response::HTTP_OK,
+        description: 'Return current user',
+        content: new JsonContent(
+            type: 'array',
+            items: new Items()
+        )
+    )]
+    #[Tag(name: 'User')]
+    #[\Nelmio\ApiDocBundle\Annotation\Security(name: 'Bearer')]
     public function getCurrentUser(Request $request) : JsonResponse
     {
         // Verify if the jwt token is in the request
@@ -79,16 +155,50 @@ class UserController extends AbstractController
         $user = $this->getUser();
         return $this->json($user->getUserDisplay(), Response::HTTP_OK);
     }
+
     #[Route(path: '/users', name: 'app_update_user', methods: ['PUT'])]
+    #[\OpenApi\Attributes\Response(
+        response: Response::HTTP_OK,
+        description: 'Update user informations and return his new informations',
+        content: new JsonContent(
+            type: 'string',
+        )
+    )]
+    #[Tag(name: 'User')]
+    #[\Nelmio\ApiDocBundle\Annotation\Security(name: 'Bearer')]
+    #[Parameter(
+        name: 'login',
+        description: 'The user login',
+        in: 'header',
+        schema: new Schema(type: 'string')
+    )]
+    #[Parameter(
+        name: 'email',
+        description: 'The user email',
+        in: 'header',
+        schema: new Schema(type: 'string')
+    )]
+    #[Parameter(
+        name: 'firstname',
+        description: 'The user first name',
+        in: 'header',
+        schema: new Schema(type: 'string')
+    )]
+    #[Parameter(
+        name: 'lastname',
+        description: 'The user last name',
+        in: 'header',
+        schema: new Schema(type: 'string')
+    )]
     public function updateCurrentUser(Request $request, EntityManagerInterface $em) : JsonResponse
     {
         // Verify if the jwt token is in the request
         Security::isAuthed($request);
 
         $user = $this->getUser();
-        $content = json_decode($request->getContent(), true);
+        $content = $this->getContentFromRequest($request, 'app_update_user' );
 
-        // Verify if login or email is already use by an other user
+        // Verify if login or email is already use by another user
         $this->isLoginOrEmailUsed($content, $em);
 
         $user->setEmail($content['email'])
@@ -105,13 +215,14 @@ class UserController extends AbstractController
         return $this->json($user->getUserDisplay(), Response::HTTP_OK);
     }
 
-    #[Route(path: '/logout', name: 'app_logout')]
+    #[Route(path: '/logout', name: 'app_logout', methods: 'GET')]
+    #[Tag(name: 'User')]
     public function logout(): void
     {
         throw new \LogicException('This method can be blank - it will be intercepted by the logout key on your firewall.');
     }
 
-    public function isLoginOrEmailUsed(array $content, EntityManagerInterface $em) : JsonResponse
+    public function isLoginOrEmailUsed(array $content, EntityManagerInterface $em) : ?JsonResponse
     {
         if (null !== $em->getRepository(User::class)->findOneBy(['email' => $content['email']])) {
             return new JsonResponse([
@@ -124,5 +235,24 @@ class UserController extends AbstractController
                 'message' => 'Ce nom d\'utilisateur est déjà utilisé.',
             ], Response::HTTP_BAD_REQUEST);
         }
+        return null;
+    }
+
+    public function getContentFromRequest(Request $request, string $route): array
+    {
+        if (empty($request->getContent())) {
+            $content['login'] = $request->headers->get('login');
+            if ($route === 'app_login' or $route === 'app_register_user') {
+                $content['password'] = $request->headers->get('password');
+            }
+            if ($route === 'app_update_user' or $route === 'app_register_user') {
+                $content['firstname'] = $request->headers->get('firstname');
+                $content['lastname'] = $request->headers->get('lastname');
+                $content['email'] = $request->headers->get('email');
+            }
+        } else {
+            $content = json_decode($request->getContent(), true);
+        }
+        return $content;
     }
 }
