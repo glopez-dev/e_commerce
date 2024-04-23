@@ -1,25 +1,25 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 
 import Style from '../Styles/Article.module.css';
 import Card from './Card';
 
-interface Pokemon {
+interface Article {
     name: string;
-    url: string;
+    photo: string;
     id: number;
 
 }
 
-export default function Article(): JSX.Element {
-    const [pokemons, setPokemons] = React.useState<Pokemon[]>([]);
+const Article = () => {
+    const [articles, setArticles] = useState<Article[]>([]);
 
-    React.useEffect(() => {
+    useEffect(() => {
         const fetchData = async () => {
             try {
-                const response = await axios.get('https://pokeapi.co/api/v2/pokemon?limit=151');
-                setPokemons(response.data.results);
-                console.log(response.data.results);
+                const response = await axios.get('http://127.0.0.1:8000/api/products');
+                setArticles(response.data);
+                console.log(response.data);
             } catch (error) {
                 console.error('Error fetching data:', error);
             }
@@ -36,11 +36,14 @@ export default function Article(): JSX.Element {
             </div>
             <div className={Style.article}>
                 <div className={Style.card}>
-                    {pokemons.map((pokemon, index) => (
-                        <Card key={index} image={pokemon.url} title={pokemon.name} description={pokemon.id} />
+
+                    {articles && articles.map((articles, index) => (
+                        <Card key={index} image={articles.photo} title={articles.name} description={articles.id} />
                     ))}
                 </div>
             </div>
         </div>
     );
 };
+
+export default Article;

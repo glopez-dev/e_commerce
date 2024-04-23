@@ -11,7 +11,8 @@ import ListItemText from '@mui/material/ListItemText';
 import InboxIcon from '@mui/icons-material/MoveToInbox';
 import MailIcon from '@mui/icons-material/Mail';
 import MenuIcon from '@mui/icons-material/Menu';
-import style from '../Styles/SideBar.module.css'
+import CloseIcon from '@mui/icons-material/Close';
+import style from '../Styles/SideBar.module.css';
 
 /**
  * Renders a temporary drawer component.
@@ -58,10 +59,16 @@ export default function TemporaryDrawer() {
     return (
         <>
             <Button onClick={toggleDrawer(true)} className={style.btn}>
-                <MenuIcon sx={{ color: 'black', fontSize: 35 }} />
+                <MenuIcon sx={{ color: 'black', fontSize: 25 }} />
                 <p style={{ color: 'black', fontSize: 15 }}>Menu</p>
             </Button>
             <Drawer open={open} onClose={toggleDrawer(false)}>
+                <div>
+                    <Button onClick={toggleDrawer(false)}>
+                        <CloseIcon sx={{ color: 'black', fontSize: 35 }} />
+                        <p style={{ color: 'black', fontSize: 15 }}>Close</p>
+                    </Button>
+                </div>
                 {DrawerList}
             </Drawer>
         </>

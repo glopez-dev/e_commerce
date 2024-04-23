@@ -6,15 +6,7 @@ interface SearchBarProps {
     onSearch: (query: string) => void;
 }
 
-/**
- * Renders a search bar component.
- *
- * @param {Object} onSearch - Callback function to be called when the search button is clicked or the enter key is pressed.
- * @param {string} onSearch.query - The search query entered by the user.
- * @return {JSX.Element} The search bar component.
- */
-export default function SearchBar({ onSearch }: SearchBarProps): JSX.Element {
-
+const SearchBar: React.FC<SearchBarProps> = ({ onSearch }) => {
     const [query, setQuery] = useState<string>('');
 
     const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -32,8 +24,9 @@ export default function SearchBar({ onSearch }: SearchBarProps): JSX.Element {
     };
 
     return (
-        <div style={{ backgroundColor: 'white' }}>
+        <div style={{ backgroundColor: 'white', }}>
             <TextField
+                size='small'
                 placeholder="Search..."
                 value={query}
                 onChange={handleInputChange}
@@ -52,3 +45,4 @@ export default function SearchBar({ onSearch }: SearchBarProps): JSX.Element {
     );
 };
 
+export default SearchBar;

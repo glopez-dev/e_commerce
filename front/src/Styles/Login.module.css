@@ -1,4 +1,141 @@
 .containers {
-    background-color: aqua;
-    margin-top: 100px;
+
+    margin-top: 85px;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    height: 87vh;
+}
+
+.box {
+    width: 60%;
+    background-color: #fffcf7;
+
+}
+
+.title {
+    border-bottom: 2px solid black;
+
+}
+
+.login {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 90%;
+
+}
+
+.card {
+    background-color: #fffcf7;
+    width: 75%;
+    height: 75%;
+    margin-top: 40px;
+}
+
+.p {
+    background-color: #fffcf7;
+    width: 100%;
+    text-align: center;
+
+}
+
+.form {
+    display: flex;
+
+    background-color: #fffcf7;
+    align-items: center;
+    justify-content: center;
+
+
+    flex-direction: column;
+    gap: 20px;
+    width: 100%;
+    margin-top: 40px;
+
+}
+
+.input {
+
+
+    display: flex;
+    gap: 20px;
+    flex-direction: column;
+    width: 50%;
+}
+
+
+
+h1 {
+    margin: 15px;
+}
+
+@media only screen and (max-width: 767px) {
+
+    .box {
+        width: 90%;
+    }
+
+    .form {
+        width: 100%;
+    }
+
+    .input {
+        width: 90%;
+    }
+
+    .card {
+        width: 100%;
+    }
+
+    .text {
+        font-size: 20px;
+        padding: 15px;
+    }
+
+    .title>h1 {
+        font-size: 20px;
+    }
+
+    .text {
+        font-size: 15px;
+
+    }
+
+
+
+
+
+
+
+}
+
+
+@media only screen and (min-width: 768px) and (max-width: 1023px) {
+
+    .box {
+        width: 100%;
+    }
+
+    .form {
+
+        width: 100%;
+    }
+
+    .input {
+
+        width: 90%;
+    }
+
+    .card {
+        width: 100%;
+    }
+
+    .text {
+        font-size: 20px;
+        padding: 15px;
+    }
+
 }

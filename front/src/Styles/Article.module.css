@@ -18,6 +18,8 @@
 
 }
 
+
+
 .article {
 
 
@@ -46,7 +48,7 @@
 
     gap: 20px;
     flex-direction: row;
-    width: 90%;
+    width: 70%;
 
 
 
@@ -67,4 +69,17 @@ h1 {
 
 p {
     font-size: 20px;
+}
+
+@media screen and (max-width: 768px) {
+    .title>h1 {
+
+        font-size: 19px;
+    }
+
+    .title>p {
+        margin: 15px;
+        font-size: 15px;
+    }
+
 }

@@ -4,12 +4,10 @@ import Menu from './SideBar';
 import ShoppingBasketOutlinedIcon from '@mui/icons-material/ShoppingBasketOutlined';
 import Button from '@mui/material/Button';
 import SearchBar from './Searchbar';
+import AddIcon from '@mui/icons-material/Add';
 import { Link } from 'react-router-dom';
+import vinted from '../assets/Vinted.png';
 
-const handleSearch = (query: string) => {
-
-    console.log('Query:', query);
-};
 
 
 /**
@@ -21,10 +19,12 @@ export default function Head(): JSX.Element {
     return (
 
         <div className={Style.ctn1}>
+
             <div className={Style.ctn2}>
+
                 <div className={Style.gauche}>
                     <Menu />
-                    <SearchBar onSearch={handleSearch} />
+                    <SearchBar onSearch={() => { }} />
                     <div />
                 </div>
 
@@ -38,20 +38,39 @@ export default function Head(): JSX.Element {
                         <Button variant="text" className={Style.btn} >
                             <Person2OutlinedIcon sx={{ color: '#444' }} />
 
-                            <p> Compte</p>
+                            <p className={Style.text}> Compte</p>
 
                         </Button>
                     </Link>
 
-                    <Button variant="text" className={Style.btn}  >
-                        <ShoppingBasketOutlinedIcon sx={{ color: '#444' }} />
-                        <p> Panier</p>
-                    </Button>
+                    <Link to="/panier">
+
+                        <Button variant="text" className={Style.btn}  >
+                            <ShoppingBasketOutlinedIcon sx={{ color: '#444' }} />
+                            <p className={Style.text}> Panier</p>
+                        </Button>
+
+                    </Link>
+
+                    <Link to="/addArticle" className={Style.btn}>
+
+                        <Button variant="text" className={Style.btn}  >
+                            <AddIcon sx={{ color: '#444' }} />
+                            <p className={Style.text}> Ajouter</p>
+                        </Button>
+
+                    </Link>
+
+
+
+
                     <div />
 
                 </div>
             </div>
+
         </div>
+
 
     );
 };

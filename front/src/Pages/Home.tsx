@@ -1,11 +1,12 @@
-import Head from '../Components/Head';
-import Style from '../Styles/Home.module.css';
+
 import Article from '../Components/Article';
+import Style from '../Styles/Home.module.css';
+
+
 
 /**
- * Renders the Home page component.
- *
- * @return {JSX.Element} The Home page component.
+ * @return
+ * @constructor
  */
 export default function Home(): JSX.Element {
 
@@ -13,8 +14,8 @@ export default function Home(): JSX.Element {
 
         <>
             <div className={Style.containers}>
-
                 <Article />
+
             </div>
         </>
     );

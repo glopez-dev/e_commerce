@@ -3,7 +3,7 @@
     display: flex;
 
     width: 100%;
-    justify-content: center;
+
 
     background-color: #f6f1eb;
     position: fixed;
@@ -14,38 +14,31 @@
 
 
 
+
 }
+
 
 .ctn2 {
-
     display: flex;
-    height: 100%;
-    width: 95%;
-    align-items: center;
-    gap: 10px;
-    color: white;
     justify-content: space-between;
-    margin: 15px;
-
-
-
+    align-items: center;
+    padding: 15px;
+    width: 100%;
 
 }
+
 
 .gauche {
     display: flex;
     gap: 10px;
     align-items: center;
-    height: 90%;
-
-
     color: black;
 
 }
 
 .droite {
     display: flex;
-    gap: 10px;
+
 }
 
 .logo {
@@ -55,15 +48,28 @@
 p {
     margin: 0;
     padding: 0;
-    color: black;
 }
 
-.btn {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    gap: 10px;
-    cursor: pointer;
+.text {
+    color: black;
+    font-size: 15px;
+}
+
+
+
+
+
+
+@media screen and (max-width: 768px) {
+
+    .text {
+        display: none;
+    }
+
+
+
+
+
 
 
 
