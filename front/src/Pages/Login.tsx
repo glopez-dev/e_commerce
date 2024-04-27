@@ -6,17 +6,15 @@ import { Link } from 'react-router-dom';
 import axios from 'axios';
 import {useAuth} from "../Components/Authentication/AuthProvider";
 
-interface postResponse {
-    token: string
-}
-
 const Login: React.FC = () => {
     const [login, setLogin] = useState<string>('');
     const [password, setPassword] = useState<string>('');
-    const authProvider = useAuth()
-    const handleLogin = async () => {
+    const authProvider = useAuth();
+    const handleLogin = async (e: React.FormEvent) => {
+        e.preventDefault();
+
         try {
-            const response = await axios.post('http://localhost:8000/api/login', { login, password });// tu changes la route ici
+            const response = await axios.post('http://localhost:8000/api/login', { login, password });
             const data = response.data;
             if (response.status === 200) {
                 authProvider.onLogin(data.token);
@@ -39,7 +37,7 @@ const Login: React.FC = () => {
                         <div className={Style.p}>
                             <p className={Style.text}>Veuillez ajouter votre e-mail ainsi que votre mot de passe ci-dessous pour accéder à votre compte ou créer un compte </p>
                         </div>
-                        <div className={Style.form}>
+                        <form className={Style.form} onSubmit={(e) => handleLogin(e)}>
                             <div className={Style.input}>
                                 <TextField
                                     id="login"
@@ -61,14 +59,12 @@ const Login: React.FC = () => {
                                     required={true}
                                     onChange={(e) => setPassword(e.target.value)}
                                 />
-                                <Button variant="text" onClick={handleLogin}>Connexion</Button>
-                                <Link to="/register" className={Style.btn}>
-                                    <Button variant="text" fullWidth>
-                                        S'inscrire
-                                    </Button>
-                                </Link>
+                                <div className={Style.btnGroup}>
+                                    <Button type={'submit'} variant="text" className={Style.btn}>Connexion</Button>
+                                    <Link to="/register">Pas encore de compte ? S'inscrire ici !</Link>
+                                </div>
                             </div>
-                        </div>
+                        </form>
                     </div>
                 </div>
             </div>

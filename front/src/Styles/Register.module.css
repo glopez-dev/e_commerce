@@ -29,6 +29,8 @@
 }
 
 .card {
+    display: flex;
+    flex-direction: column;
     background-color: #fffcf7;
     width: 75%;
     height: 75%;
@@ -38,8 +40,6 @@
 .p {
     background-color: #fffcf7;
     width: 100%;
-    text-align: center;
-
 }
 
 .form {
@@ -49,15 +49,14 @@
     align-items: center;
     justify-content: center;
 
-
-    flex-direction: column;
+    flex-direction: row;
     gap: 20px;
     width: 100%;
-    margin-top: 40px;
+    margin: 20px 0;
 
 }
 
-.input {
+.inputGroup {
     display: flex;
     gap: 20px;
     flex-direction: column;
@@ -80,8 +79,6 @@
     text-align: center;
     border-radius: 4px !important;
 }
-
-
 
 h1 {
     margin: 15px;
@@ -106,7 +103,7 @@ h1 {
     }
 
     .text {
-        font-size: 20px;
+        font-size: 18px;
         padding: 15px;
     }
 
@@ -118,12 +115,6 @@ h1 {
         font-size: 15px;
 
     }
-
-
-
-
-
-
 
 }
 
