@@ -34,7 +34,7 @@ export default function Head(): JSX.Element {
 
                 <div className={Style.droite}>
 
-                    <Link to="/Login">
+                    <Link to="/login">
                         <Button variant="text" className={Style.btn} >
                             <Person2OutlinedIcon sx={{ color: '#444' }} />
 

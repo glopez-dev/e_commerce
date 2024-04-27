@@ -1,10 +1,12 @@
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import {BrowserRouter, Routes, Route} from 'react-router-dom';
 import Home from './Pages/Home';
 import Login from './Pages/Login';
 import Head from './Components/Head';
 import Panier from './Pages/Panier';
 import Register from './Pages/Register';
 import AddArticle from './Pages/AddArticle';
+import {AuthProvider} from "./Components/Authentication/AuthProvider";
+import ProtectedRoute from "./Components/Authentication/ProtectedRoute";
 
 /**
  * Renders the main application component.
@@ -12,23 +14,30 @@ import AddArticle from './Pages/AddArticle';
  * @return {JSX.Element} The rendered application component.
  */
 function App(): JSX.Element {
-  return (
+    return (
 
-    <BrowserRouter>
-      <Head />
+        <BrowserRouter>
+            <Head/>
+            <AuthProvider>
+                <Routes>
 
-      <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/panier" element={<Panier />} />
-        <Route path="/register" element={<Register />} />
-        <Route path="/addArticle" element={<AddArticle />} />
-
-
-      </Routes>
-
-    </BrowserRouter>
-  );
+                    <Route path="/" element={<Home/>}/>
+                    <Route path="/login" element={<Login/>}/>
+                    <Route path="/register" element={<Register/>}/>
+                    <Route path="/panier" element={
+                        <ProtectedRoute>
+                            <Panier/>
+                        </ProtectedRoute>
+                    }/>
+                    <Route path="/addArticle" element={
+                        <ProtectedRoute>
+                            <AddArticle/>
+                        </ProtectedRoute>
+                    }/>
+                </Routes>
+            </AuthProvider>
+        </BrowserRouter>
+    );
 }
 
 export default App;

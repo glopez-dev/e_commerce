@@ -4,20 +4,27 @@ import TextField from '@mui/material/TextField';
 import Button from '@mui/material/Button';
 import { Link } from 'react-router-dom';
 import axios from 'axios';
+import {useAuth} from "../Components/Authentication/AuthProvider";
+
+interface postResponse {
+    token: string
+}
 
 const Login: React.FC = () => {
-    const [email, setEmail] = useState<string>('');
+    const [login, setLogin] = useState<string>('');
     const [password, setPassword] = useState<string>('');
-
+    const authProvider = useAuth()
     const handleLogin = async () => {
         try {
-            const response = await axios.post<{ data: any }>('YOUR_API_LOGIN_ENDPOINT', { email, password });// tu changes la route ici 
-            console.log(response.data);
-            setEmail('');
+            const response = await axios.post('http://localhost:8000/api/login', { login, password });// tu changes la route ici
+            const data = response.data;
+            if (response.status === 200) {
+                authProvider.onLogin(data.token);
+            }
+            setLogin('');
             setPassword('');
         } catch (error) {
             console.error('Login failed:', error);
-
         }
     };
 
@@ -35,12 +42,14 @@ const Login: React.FC = () => {
                         <div className={Style.form}>
                             <div className={Style.input}>
                                 <TextField
-                                    id="email"
-                                    label="Email"
+                                    id="login"
+                                    label="Login"
                                     variant="outlined"
+                                    type={"text"}
                                     fullWidth
-                                    value={email}
-                                    onChange={(e) => setEmail(e.target.value)}
+                                    value={login}
+                                    required={true}
+                                    onChange={(e) => setLogin(e.target.value)}
                                 />
                                 <TextField
                                     id="password"
@@ -49,6 +58,7 @@ const Login: React.FC = () => {
                                     variant="outlined"
                                     fullWidth
                                     value={password}
+                                    required={true}
                                     onChange={(e) => setPassword(e.target.value)}
                                 />
                                 <Button variant="text" onClick={handleLogin}>Connexion</Button>
