@@ -25,21 +25,24 @@ use \Nelmio\ApiDocBundle\Annotation\Security as NelmioSecurity;
 class UserController extends AbstractController
 {
 
-    public function isLoginOrEmailUsed(array $content, EntityManagerInterface $em): ?JsonResponse
+
+    public function isLoginOrEmailUsed(array $content, EntityManagerInterface $em): array
     {
         if (null !== $em->getRepository(User::class)->findOneBy(['email' => $content['email']])) {
-            return new JsonResponse([
-                'message' => 'Cet email est déjà associé à un compte.',
-            ], Response::HTTP_BAD_REQUEST);
+            return [
+                true,
+                'email',
+                'Cet email est déjà associé à un compte.'
+            ];
         }
-
         if (null !== $em->getRepository(User::class)->findOneBy(['login' => $content['login']])) {
-            return new JsonResponse([
-                'message' => 'Ce nom d\'utilisateur est déjà utilisé.',
-            ], Response::HTTP_BAD_REQUEST);
+            return [
+                true,
+                'login',
+                'Ce nom d\'utilisateur est déjà utilisé.'
+            ];
         }
-
-        return null;
+        return [false, ''];
     }
 
     public function getContentFromRequest(Request $request, string $route = null): array
