@@ -10,13 +10,38 @@ use App\Entity\Product;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Exception\ORMException;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Serializer\SerializerInterface;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 #[Route('/api')]
 class ProductController extends AbstractController
 {
+
+    public function getProductById(int $id, EntityManagerInterface $em): ?Product
+    {
+        $product = $em->getRepository(Product::class)->find($id);
+
+        if (!$product) {
+            $error = ['error' => 'Product not found'];
+            return $this->json($error, Response::HTTP_NOT_FOUND);
+        }
+
+        return $product;
+    }
+
+    private function saveProduct(Product $product, EntityManagerInterface $em): ?JsonResponse
+    {
+        try {
+            $em->persist($product);
+            $em->flush();
+        } catch (ORMException $exception) {
+            $error = ['error' => $exception->getMessage()];
+            return $this->json($error, Response::HTTP_BAD_REQUEST);
+        }
+    }
+
+    #[IsGranted('IS_AUTHENTICATED')]
     #[Route('/product', name: 'create_product', methods: ['POST'])]
-    public function createProduct(Request $request, EntityManagerInterface $entityManager, SerializerInterface $serializer): JsonResponse
+    public function createProduct(Request $request, EntityManagerInterface $em): JsonResponse
     {
         $data = json_decode($request->getContent(), true);
 
@@ -26,14 +51,12 @@ class ProductController extends AbstractController
             ->setPhoto($data['photo'])
             ->setPrice($data['price']);
 
-        try {
-            $entityManager->persist($product);
-            $entityManager->flush();
+        /** @disregard P1013 */
+        $this->getUser()->addProduct($product);
 
-            return $this->json($product, Response::HTTP_CREATED);
-        } catch (ORMException $exception) {
-            return $this->json(['error' => 'Cannot create product'], Response::HTTP_BAD_REQUEST);
-        }
+        $this->saveProduct($product, $em);
+
+        return $this->json($product, Response::HTTP_CREATED);
     }
 
     #[Route('/products', name: 'get_all_products', methods: ['GET'])]
@@ -41,57 +64,64 @@ class ProductController extends AbstractController
     {
         $products = $entityManager->getRepository(Product::class)->findAll();
 
+        $products = array_map(function ($product) {
+            return [
+                'id' => $product->getId(),
+                'name' => $product->getName(),
+                'description' => $product->getDescription(),
+                'photo' => $product->getPhoto(),
+                'price' => $product->getPrice(),
+            ];
+        }, $products);
+
         return $this->json($products, Response::HTTP_OK);
     }
 
     #[Route('/product/{productId}', name: 'get_product', methods: ['GET'])]
     public function getProduct(Request $request, EntityManagerInterface $entityManager): JsonResponse
     {
-        $product = $entityManager->getRepository(Product::class)->find($request->get('productId'));
+        $productId = $request->get('productId');
+        $product = $this->getProductById($productId, $entityManager);
 
         return $this->json($product, Response::HTTP_OK);
     }
 
+    #[IsGranted('IS_AUTHENTICATED')]
     #[Route('/product/{id}', name: 'update_product', methods: ['PUT'])]
-    public function updateProduct(Request $request, EntityManagerInterface $entityManager): JsonResponse
+    public function updateProduct(Request $request, EntityManagerInterface $em): JsonResponse
     {
         $data = json_decode($request->getContent(), true);
 
-        $product = $entityManager->getRepository(Product::class)->find($request->get('id'));
-        if (!$product) {
-            return $this->json(['error' => 'Product not found'], Response::HTTP_NOT_FOUND);
-        }
+        $productId = $request->get('id');
+        $product = $this->getProductById($productId, $em);
 
         $product->setName($data['name'])
             ->setDescription($data['description'])
             ->setPhoto($data['photo'])
             ->setPrice($data['price']);
 
-        try {
-            $entityManager->persist($product);
-            $entityManager->flush();
-        } catch (ORMException $exception) {
-            return $this->json(['error' => 'Cannot update product'], Response::HTTP_BAD_REQUEST);
-        }
+        $this->saveProduct($product, $em);
 
         return $this->json($product, Response::HTTP_OK);
     }
 
+    #[IsGranted('IS_AUTHENTICATED')]
     #[Route('/product/{id}', name: 'delete_product', methods: ['DELETE'])]
-    public function deleteProduct(Request $request, EntityManagerInterface $entityManager): JsonResponse
+    public function deleteProduct(Request $request, EntityManagerInterface $em): JsonResponse
     {
-        $product = $entityManager->getRepository(Product::class)->find($request->get('id'));
-        if (!$product) {
-            return $this->json(['error' => 'Product not found'], Response::HTTP_NOT_FOUND);
-        }
+
+        $productId = $request->get('id');
+        $product = $this->getProductById($productId, $em);
 
         try {
-            $entityManager->remove($product);
-            $entityManager->flush();
+            $em->remove($product);
+            $em->flush();
         } catch (ORMException $exception) {
-            return $this->json(['error' => 'Cannot delete product'], Response::HTTP_BAD_REQUEST);
+            $error = ['error' => 'Cannot delete product'];
+            return $this->json($error, Response::HTTP_BAD_REQUEST);
         }
 
-        return $this->json(['message' => 'Product deleted successfully'], Response::HTTP_ACCEPTED);
+        $data = ['message' => 'Product deleted successfully'];
+        return $this->json($data, Response::HTTP_ACCEPTED);
     }
 }

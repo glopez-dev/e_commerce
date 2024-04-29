@@ -4,11 +4,12 @@ namespace App\DataFixtures;
 
 use App\Entity\User;
 use Doctrine\Bundle\FixturesBundle\Fixture;
+use Doctrine\Common\DataFixtures\OrderedFixtureInterface;
 use Doctrine\Persistence\ObjectManager;
 use Faker;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 
-class UserFixtures extends Fixture
+class UserFixtures extends Fixture implements OrderedFixtureInterface
 {
 
     private UserPasswordHasherInterface $hasher;
@@ -17,6 +18,12 @@ class UserFixtures extends Fixture
     {
         $this->hasher = $passwordHasher;
     }
+
+    public function getOrder(): int
+    {
+        return 1;
+    }
+
 
     public function load(ObjectManager $manager): void
     {
@@ -50,6 +57,5 @@ class UserFixtures extends Fixture
 
         $manager->persist($elone);
         $manager->flush();
-
     }
 }

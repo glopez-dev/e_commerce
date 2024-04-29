@@ -3,7 +3,6 @@
 namespace App\Controller;
 
 use App\Entity\User;
-use App\Services\Security;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Exception\ORMException;
 use Lexik\Bundle\JWTAuthenticationBundle\Services\JWTTokenManagerInterface;
@@ -18,12 +17,49 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
+use Symfony\Bundle\SecurityBundle\Security;
+use \Nelmio\ApiDocBundle\Annotation\Security as NelmioSecurity;
 
 #[Route('/api')]
 class UserController extends AbstractController
 {
 
-    #[Route('/register', name: 'app_register_user', methods: ['POST'])]
+    public function isLoginOrEmailUsed(array $content, EntityManagerInterface $em): ?JsonResponse
+    {
+        if (null !== $em->getRepository(User::class)->findOneBy(['email' => $content['email']])) {
+            return new JsonResponse([
+                'message' => 'Cet email est déjà associé à un compte.',
+            ], Response::HTTP_BAD_REQUEST);
+        }
+
+        if (null !== $em->getRepository(User::class)->findOneBy(['login' => $content['login']])) {
+            return new JsonResponse([
+                'message' => 'Ce nom d\'utilisateur est déjà utilisé.',
+            ], Response::HTTP_BAD_REQUEST);
+        }
+
+        return null;
+    }
+
+    public function getContentFromRequest(Request $request, string $route = null): array
+    {
+        if (empty($request->getContent())) {
+            $content['login'] = $request->headers->get('login');
+            if ($route === 'app_login' || $route === 'app_register_user') {
+                $content['password'] = $request->headers->get('password');
+            }
+            if ($route === 'app_update_user' || $route === 'app_register_user') {
+                $content['firstname'] = $request->headers->get('firstname');
+                $content['lastname'] = $request->headers->get('lastname');
+                $content['email'] = $request->headers->get('email');
+            }
+        } else {
+            $content = json_decode($request->getContent(), true);
+        }
+        return $content;
+    }
+
     #[\OpenApi\Attributes\Response(
         response: Response::HTTP_OK,
         description: 'Register a new user and return his JWT Token',
@@ -62,13 +98,15 @@ class UserController extends AbstractController
         schema: new Schema(type: 'string')
     )]
     #[Tag(name: 'User')]
-    public function register(Request $request,
-                             JWTTokenManagerInterface $tokenManager,
-                             UserPasswordHasherInterface $passwordHasher,
-                             EntityManagerInterface $em
-    ) : JsonResponse
-    {
-        $content = $this->getContentFromRequest($request, 'app_register_user' );
+    #[Route('/register', name: 'app_register_user', methods: ['POST'])]
+    public function register(
+        Request $request,
+        JWTTokenManagerInterface $tokenManager,
+        UserPasswordHasherInterface $passwordHasher,
+        EntityManagerInterface $em
+    ): JsonResponse {
+
+        $content = $this->getContentFromRequest($request, 'app_register_user');
 
         // Verify if login or email is already use by another user
         $isUsed = $this->isLoginOrEmailUsed($content, $em);
@@ -80,27 +118,26 @@ class UserController extends AbstractController
         }
         $user = new User();
         $hashedPassword = $passwordHasher->hashPassword($user, $content['password']);
+
         $user->setPassword($hashedPassword)
             ->setEmail($content['email'])
             ->setLogin($content['login'])
             ->setFirstname($content['firstname'])
             ->setLastname($content['lastname']);
+
         try {
             $em->persist($user);
             $em->flush();
-        } catch (ORMException $e) {
-            return new JsonResponse([
-                'message' => $e->getMessage(),
-            ], Response::HTTP_BAD_REQUEST);
-        }
 
-        return new JsonResponse([
-            'message' => 'Compte créé avec succès.',
-            'token' => $tokenManager->create($user)
-        ], Response::HTTP_CREATED);
+            $data = ['message' => 'Compte créé avec succès.', 'token' => $tokenManager->create($user)];
+            return new JsonResponse($data, Response::HTTP_CREATED);
+        } catch (ORMException $e) {
+
+            $error = ['message' => $e->getMessage()];
+            return new JsonResponse($error, Response::HTTP_BAD_REQUEST);
+        }
     }
 
-    #[Route(path: '/login', name: 'app_login', methods: ['POST'])]
     #[\OpenApi\Attributes\Response(
         response: Response::HTTP_OK,
         description: 'Log in the user and return his JWT Token',
@@ -121,24 +158,28 @@ class UserController extends AbstractController
         schema: new Schema(type: 'string')
     )]
     #[Tag(name: 'User')]
-    public function login(Request $request,
-                          JWTTokenManagerInterface $tokenManager,
-                          UserPasswordHasherInterface $passwordHasher,
-                          EntityManagerInterface $em
-    ) : JsonResponse
-    {
-        $content = $this->getContentFromRequest($request, 'app_login' );
+    #[Route(path: '/login', name: 'app_login', methods: ['POST'])]
+    public function login(
+        Request $request,
+        JWTTokenManagerInterface $tokenManager,
+        UserPasswordHasherInterface $passwordHasher,
+        EntityManagerInterface $em
+    ): JsonResponse {
 
+        $content = $this->getContentFromRequest($request, route: 'app_login');
         $user = $em->getRepository(User::class)->findOneBy(['login' => $content['login']]);
-        if ($passwordHasher->isPasswordValid($user, $content['password'])) {
-            return new JsonResponse(['token' => $tokenManager->create($user)], Response::HTTP_OK);
+
+        $isPasswordNotValid = !($passwordHasher->isPasswordValid($user, $content['password']));
+
+        if ($isPasswordNotValid) {
+            $error = ['error' => 'Mauvais nom d\'utilisateur ou mot de passe.'];
+            return new JsonResponse($error, Response::HTTP_UNAUTHORIZED);
         }
-        return new JsonResponse([
-            'message' => 'Mauvais nom d\'utilisateur ou mot de passe.'
-        ], Response::HTTP_UNAUTHORIZED);
+
+        $data = ['token' => $tokenManager->create($user)];
+        return new JsonResponse($data, Response::HTTP_OK);
     }
 
-    #[Route(path: '/users', name: 'app_get_user', methods: ['GET'])]
     #[\OpenApi\Attributes\Response(
         response: Response::HTTP_OK,
         description: 'Return current user',
@@ -148,17 +189,16 @@ class UserController extends AbstractController
         )
     )]
     #[Tag(name: 'User')]
-    #[\Nelmio\ApiDocBundle\Annotation\Security(name: 'Bearer')]
-    public function getCurrentUser(Request $request) : JsonResponse
+    #[NelmioSecurity(name: 'Bearer')]
+    #[IsGranted('IS_AUTHENTICATED')]
+    #[Route(path: '/users', name: 'app_get_user', methods: ['GET'])]
+    public function getCurrentUser(Request $request, Security $security): JsonResponse
     {
-        // Verify if the jwt token is in the request
-        Security::isAuthed($request);
-
         $user = $this->getUser();
+        /** @disregard P1013 */
         return $this->json($user->getUserDisplay(), Response::HTTP_OK);
     }
 
-    #[Route(path: '/users', name: 'app_update_user', methods: ['PUT'])]
     #[\OpenApi\Attributes\Response(
         response: Response::HTTP_OK,
         description: 'Update user informations and return his new informations',
@@ -167,7 +207,7 @@ class UserController extends AbstractController
         )
     )]
     #[Tag(name: 'User')]
-    #[\Nelmio\ApiDocBundle\Annotation\Security(name: 'Bearer')]
+    #[NelmioSecurity(name: 'Bearer')]
     #[Parameter(
         name: 'login',
         description: 'The user login',
@@ -192,17 +232,17 @@ class UserController extends AbstractController
         in: 'header',
         schema: new Schema(type: 'string')
     )]
-    public function updateCurrentUser(Request $request, EntityManagerInterface $em) : JsonResponse
+    #[IsGranted('IS_AUTHENTICATED')]
+    #[Route(path: '/users', name: 'app_update_user', methods: ['PUT'])]
+    public function updateCurrentUser(Request $request, EntityManagerInterface $em): JsonResponse
     {
-        // Verify if the jwt token is in the request
-        Security::isAuthed($request);
-
         $user = $this->getUser();
-        $content = $this->getContentFromRequest($request, 'app_update_user' );
+        $content = $this->getContentFromRequest($request, 'app_update_user');
 
         // Verify if login or email is already use by another user
         $this->isLoginOrEmailUsed($content, $em);
 
+        /** @disregard P1013 */
         $user->setEmail($content['email'])
             ->setLogin($content['login'])
             ->setFirstname($content['firstname'])
@@ -214,6 +254,8 @@ class UserController extends AbstractController
         } catch (ORMException $e) {
             return new JsonResponse($e->getMessage(), Response::HTTP_BAD_REQUEST);
         }
+
+        /** @disregard P1013 */
         return $this->json($user->getUserDisplay(), Response::HTTP_OK);
     }
 
@@ -222,42 +264,5 @@ class UserController extends AbstractController
     public function logout(): void
     {
         throw new \LogicException('This method can be blank - it will be intercepted by the logout key on your firewall.');
-    }
-
-    public function isLoginOrEmailUsed(array $content, EntityManagerInterface $em) : array
-    {
-        if (null !== $em->getRepository(User::class)->findOneBy(['email' => $content['email']])) {
-            return [
-                true,
-                'email',
-                'Cet email est déjà associé à un compte.'
-            ];
-        }
-        if (null!== $em->getRepository(User::class)->findOneBy(['login' => $content['login']])) {
-            return [
-                true,
-                'login',
-                'Ce nom d\'utilisateur est déjà utilisé.'
-            ];
-        }
-        return [false, ''];
-    }
-
-    public function getContentFromRequest(Request $request, string $route): array
-    {
-        if (empty($request->getContent())) {
-            $content['login'] = $request->headers->get('login');
-            if ($route === 'app_login' or $route === 'app_register_user') {
-                $content['password'] = $request->headers->get('password');
-            }
-            if ($route === 'app_update_user' or $route === 'app_register_user') {
-                $content['firstname'] = $request->headers->get('firstname');
-                $content['lastname'] = $request->headers->get('lastname');
-                $content['email'] = $request->headers->get('email');
-            }
-        } else {
-            $content = json_decode($request->getContent(), true);
-        }
-        return $content;
     }
 }
