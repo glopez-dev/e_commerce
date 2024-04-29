@@ -1,18 +1,30 @@
-import React, { useState } from 'react';
+import React, {useEffect, useState} from 'react';
 import Style from '../Styles/Login.module.css';
 import TextField from '@mui/material/TextField';
 import Button from '@mui/material/Button';
 import { Link } from 'react-router-dom';
 import axios from 'axios';
 import {useAuth} from "../Components/Authentication/AuthProvider";
+import {Alert} from "@mui/material";
+
+type Error = {
+    isError: boolean,
+    message: string,
+}
 
 const Login: React.FC = () => {
     const [login, setLogin] = useState<string>('');
     const [password, setPassword] = useState<string>('');
     const authProvider = useAuth();
+    const [error, setError] = useState<Error>({isError: false, message: ''})
+
+    useEffect(() => {
+        setLogin('');
+        setPassword('');
+    }, [error]);
+
     const handleLogin = async (e: React.FormEvent) => {
         e.preventDefault();
-
         try {
             const response = await axios.post('http://localhost:8000/api/login', { login, password });
             const data = response.data;
@@ -21,8 +33,13 @@ const Login: React.FC = () => {
             }
             setLogin('');
             setPassword('');
-        } catch (error) {
-            console.error('Login failed:', error);
+        } catch (data: any) {
+            if (data.response.data.message) {
+                setError({
+                    isError: true,
+                    message: data.response.data.message
+                })
+            }
         }
     };
 
@@ -41,7 +58,7 @@ const Login: React.FC = () => {
                             <div className={Style.input}>
                                 <TextField
                                     id="login"
-                                    label="Login"
+                                    label="Nom d'utilisateur"
                                     variant="outlined"
                                     type={"text"}
                                     fullWidth
@@ -51,7 +68,7 @@ const Login: React.FC = () => {
                                 />
                                 <TextField
                                     id="password"
-                                    label="Password"
+                                    label="Mot de passe"
                                     type="password"
                                     variant="outlined"
                                     fullWidth
@@ -59,6 +76,11 @@ const Login: React.FC = () => {
                                     required={true}
                                     onChange={(e) => setPassword(e.target.value)}
                                 />
+                                {error.isError &&
+                                        <Alert severity="error">
+                                            {error.message}
+                                        </Alert>
+                                }
                                 <div className={Style.btnGroup}>
                                     <Button type={'submit'} variant="text" className={Style.btn}>Connexion</Button>
                                     <Link to="/register">Pas encore de compte ? S'inscrire ici !</Link>

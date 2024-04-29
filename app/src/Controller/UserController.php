@@ -171,12 +171,10 @@ class UserController extends AbstractController
 
         $content = $this->getContentFromRequest($request, route: 'app_login');
         $user = $em->getRepository(User::class)->findOneBy(['login' => $content['login']]);
-
-        $isPasswordNotValid = !($passwordHasher->isPasswordValid($user, $content['password']));
-
-        if ($isPasswordNotValid) {
-            $error = ['error' => 'Mauvais nom d\'utilisateur ou mot de passe.'];
-            return new JsonResponse($error, Response::HTTP_UNAUTHORIZED);
+        if ($user !== null) {
+            if ($passwordHasher->isPasswordValid($user, $content['password'])) {
+                return new JsonResponse(['token' => $tokenManager->create($user)], Response::HTTP_OK);
+            }
         }
 
         $data = ['token' => $tokenManager->create($user)];
