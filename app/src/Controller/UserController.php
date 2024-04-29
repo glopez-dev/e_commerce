@@ -7,13 +7,11 @@ use App\Services\Security;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Exception\ORMException;
 use Lexik\Bundle\JWTAuthenticationBundle\Services\JWTTokenManagerInterface;
-use Nelmio\ApiDocBundle\Model\Model;
 use OpenApi\Attributes\Items;
 use OpenApi\Attributes\JsonContent;
 use OpenApi\Attributes\Parameter;
 use OpenApi\Attributes\Schema;
 use OpenApi\Attributes\Tag;
-use PHPStan\PhpDocParser\Ast\PhpDoc\RequireExtendsTagValueNode;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -72,17 +70,21 @@ class UserController extends AbstractController
     {
         $content = $this->getContentFromRequest($request, 'app_register_user' );
 
-        // Verify if login or email is already use by an other user
-        $this->isLoginOrEmailUsed($content, $em);
-
+        // Verify if login or email is already use by another user
+        $isUsed = $this->isLoginOrEmailUsed($content, $em);
+        if ($isUsed[0]) {
+            return new JsonResponse([
+                'type' =>  $isUsed[1],
+                'message' => $isUsed[2]
+            ], Response::HTTP_BAD_REQUEST);
+        }
         $user = new User();
-
         $hashedPassword = $passwordHasher->hashPassword($user, $content['password']);
         $user->setPassword($hashedPassword)
-             ->setEmail($content['email'])
-             ->setLogin($content['login'])
-             ->setFirstname($content['firstname'])
-             ->setLastname($content['lastname']);
+            ->setEmail($content['email'])
+            ->setLogin($content['login'])
+            ->setFirstname($content['firstname'])
+            ->setLastname($content['lastname']);
         try {
             $em->persist($user);
             $em->flush();
@@ -95,7 +97,7 @@ class UserController extends AbstractController
         return new JsonResponse([
             'message' => 'Compte créé avec succès.',
             'token' => $tokenManager->create($user)
-            ], Response::HTTP_CREATED);
+        ], Response::HTTP_CREATED);
     }
 
     #[Route(path: '/login', name: 'app_login', methods: ['POST'])]
@@ -222,20 +224,23 @@ class UserController extends AbstractController
         throw new \LogicException('This method can be blank - it will be intercepted by the logout key on your firewall.');
     }
 
-    public function isLoginOrEmailUsed(array $content, EntityManagerInterface $em) : ?JsonResponse
+    public function isLoginOrEmailUsed(array $content, EntityManagerInterface $em) : array
     {
         if (null !== $em->getRepository(User::class)->findOneBy(['email' => $content['email']])) {
-            return new JsonResponse([
-                'message' => 'Cet email est déjà associé à un compte.',
-            ], Response::HTTP_BAD_REQUEST);
+            return [
+                true,
+                'email',
+                'Cet email est déjà associé à un compte.'
+            ];
         }
-
-        if (null !== $em->getRepository(User::class)->findOneBy(['login' => $content['login']])) {
-            return new JsonResponse([
-                'message' => 'Ce nom d\'utilisateur est déjà utilisé.',
-            ], Response::HTTP_BAD_REQUEST);
+        if (null!== $em->getRepository(User::class)->findOneBy(['login' => $content['login']])) {
+            return [
+                true,
+                'login',
+                'Ce nom d\'utilisateur est déjà utilisé.'
+            ];
         }
-        return null;
+        return [false, ''];
     }
 
     public function getContentFromRequest(Request $request, string $route): array

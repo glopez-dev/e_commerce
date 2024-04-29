@@ -4,25 +4,57 @@ import TextField from '@mui/material/TextField';
 import Button from '@mui/material/Button';
 import {Link} from 'react-router-dom';
 import axios from 'axios';
-import {Simulate} from "react-dom/test-utils";
-import error = Simulate.error;
 import {useAuth} from "../Components/Authentication/AuthProvider";
+import {Alert} from "@mui/material";
+
+type Error = {
+    isError: boolean,
+    message: string,
+    type: string
+}
 
 const Register: React.FC = () => {
     const [email, setEmail] = useState<string>('');
     const [password, setPassword] = useState<string>('');
-    const [firstname, setFirstame] = useState<string>('');
+    const [firstname, setFirstname] = useState<string>('');
     const [lastname, setLastname] = useState<string>('');
     const [confirmPassword, setConfirmPassword] = useState<string>('');
     const [login, setLogin] = useState<string>('');
-    const [passwordError, setPasswordError] = useState<boolean>(false)
+    const [passwordError, setPasswordError] = useState<Error>(
+        {
+            isError: false,
+            message: '',
+            type: 'password',
+        }
+    )
+    const [error, setError] = useState<Error>(
+        {
+            isError: false,
+            message: '',
+            type: '',
+        }
+    )
     const authProvider = useAuth();
 
     const handleRegister = async (e: React.FormEvent) => {
         e.preventDefault();
+        setError({
+            isError: false,
+            message: '',
+            type: '',
+        })
+        setPasswordError({
+            isError: false,
+            message: '',
+            type: 'password',
+        })
         if (password !== confirmPassword) {
-            setPasswordError(false);
-            return passwordError;
+            setPasswordError({
+                isError: true,
+                message: 'Les mots de passe ne correspondent pas !',
+                type: 'password',
+            });
+            return null;
         }
         try {
             const response = await axios.post('http://localhost:8000/api/register', {
@@ -39,11 +71,17 @@ const Register: React.FC = () => {
             setEmail('');
             setPassword('');
             setLastname('');
-            setFirstame('');
+            setFirstname('');
             setLogin('');
             setConfirmPassword('');
-        } catch (error) {
-            console.error('Register failed:', error);
+        } catch (data: any) {
+            if (data.response.data.message) {
+                setError({
+                    isError: true,
+                    message: data.response.data.message,
+                    type: data.response.data.type
+                })
+            }
         }
     };
 
@@ -69,7 +107,7 @@ const Register: React.FC = () => {
                                         label="Prénom"
                                         variant="outlined"
                                         value={firstname}
-                                        onChange={(e) => setFirstame(e.target.value)}
+                                        onChange={(e) => setFirstname(e.target.value)}
                                         required
                                     />
                                     <TextField
@@ -89,6 +127,7 @@ const Register: React.FC = () => {
                                         value={email}
                                         onChange={(e) => setEmail(e.target.value)}
                                         required
+                                        error={error.isError && error.type === 'email'}
                                     />
                                 </div>
                                 <div className={Style.inputGroup}>
@@ -99,6 +138,7 @@ const Register: React.FC = () => {
                                         value={login}
                                         onChange={(e) => setLogin(e.target.value)}
                                         required
+                                        error={error.isError && error.type === 'login'}
                                     />
                                     <TextField
                                         id="password"
@@ -108,24 +148,30 @@ const Register: React.FC = () => {
                                         value={password}
                                         onChange={(e) => setPassword(e.target.value)}
                                         required
+                                        error={passwordError.isError}
                                     />
                                     <TextField
                                         id="confirmPassword"
                                         label="Confirmez votre mot de passe"
                                         type="password"
                                         variant="outlined"
-                                        color={'secondary'}
                                         value={confirmPassword}
                                         onChange={(e) => setConfirmPassword(e.target.value)}
                                         required
+                                        error={passwordError.isError}
                                     />
-                                    {passwordError &&
-                                        <p className={Style.error}>
-                                            Mot de passe incorrect !
-                                        </p>
-                                    }
                                 </div>
                             </div>
+                            {error.isError &&
+                                <Alert severity={"error"}>
+                                    {error.message}
+                                </Alert>
+                            }
+                            {passwordError.isError &&
+                                <Alert severity={"error"}>
+                                    {passwordError.message}
+                                </Alert>
+                            }
                             <div className={Style.btnGroup}>
                                 <Button className={Style.btn}
                                         variant="text"
