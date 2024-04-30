@@ -1,9 +1,9 @@
-import React, {useEffect, useState} from 'react';
-import {useAuth} from "../../Components/Authentication/AuthProvider";
+import React, { useEffect, useState } from 'react';
+import { useAuth } from "../../Components/Authentication/AuthProvider";
 import axios from "axios";
 import Style from '../../Styles/MyProduct.module.css';
 import ActionAreaCard from "../../Components/Card";
-import {IconButton, Menu, MenuItem} from "@mui/material";
+import { IconButton, Menu, MenuItem } from "@mui/material";
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 
 
@@ -23,9 +23,9 @@ const options = [
 
 const ITEM_HEIGHT = 48;
 
-export default function MyProduct (): React.JSX.Element {
-    const [products, setProducts] = useState<product[]|null>(null);
-    const [filteredProducts, setFilteredProducts] = useState<product[]|null>(null);
+export default function MyProduct(): React.JSX.Element {
+    const [products, setProducts] = useState<product[] | null>(null);
+    const [filteredProducts, setFilteredProducts] = useState<product[] | null>(null);
     const [filter, setFilter] = useState<string>("all")
     const authProvider = useAuth();
     const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
@@ -107,7 +107,7 @@ export default function MyProduct (): React.JSX.Element {
                             aria-haspopup="true"
                             onClick={handleClick}
                         >
-                            <MoreVertIcon className={Style.vertIcon}/>
+                            <MoreVertIcon className={Style.vertIcon} />
                         </IconButton>
                         <Menu
                             id="long-menu"
@@ -133,13 +133,13 @@ export default function MyProduct (): React.JSX.Element {
                     </div>
                 </div>
                 <div className={Style.products}>
-                {filteredProducts && filteredProducts.map(( product) => {
-                            return (
-                                <div key={product.id}>
-                                    <ActionAreaCard image={product.photo} title={product.name} price={product.price} isMyProduct={true}/>
-                                </div>
-                            )
-                        })
+                    {filteredProducts && filteredProducts.map((product) => {
+                        return (
+                            <div key={product.id}>
+                                <ActionAreaCard image={product.photo} title={product.name} price={product.price} isMyProduct={true} description={product.description} id={product.id} />
+                            </div>
+                        )
+                    })
                     }
                 </div>
             </div>

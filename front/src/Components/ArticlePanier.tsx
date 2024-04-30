@@ -15,10 +15,13 @@ const ArticleComponent: React.FC<ArticleProps> = ({ name, description, photo, pr
 
         <div className={Style.article}>
             <div className={Style.box1}>
-                <div className={Style.img}>{photo}</div>
+                <div className={Style.img}>
+                    <img className={Style.img1} src={photo} alt={name} />
+                </div>
                 <div className={Style.detail}>
                     <p>{name}</p>
                     <p>{description}</p>
+                    <p>{price} $</p>
 
                 </div>
             </div>
