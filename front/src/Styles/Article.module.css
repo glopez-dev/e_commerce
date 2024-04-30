@@ -9,12 +9,23 @@
 
 .title {
     display: flex;
-    flex-direction: column;
     justify-content: center;
     align-items: center;
-    gap: 20px;
     color: #444444;
-    margin-bottom: 70px;
+    margin-bottom: 60px;
+
+
+
+    width: 65%;
+
+}
+
+.containers1 {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    width: 100%;
 
 }
 
@@ -41,6 +52,7 @@
 }
 
 .card {
+
     display: flex;
     flex-wrap: wrap;
 

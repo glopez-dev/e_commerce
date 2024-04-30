@@ -33,3 +33,6 @@ crud: ## Créer le crud pour une entité
 
 jwt: ## Créer les clefs private et public pour JWT
 	$(PHP) lexik:jwt:generate-keypair --overwrite
+
+run-db: ## Lancer la base de donnée
+	docker-compose -f docker-compose.dev.yml up -d
