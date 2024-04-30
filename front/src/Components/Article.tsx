@@ -21,7 +21,6 @@ const Article = () => {
             try {
                 const response = await axios.get('http://127.0.0.1:8000/api/products');
                 setArticles(response.data);
-                console.log(response.data);
             } catch (error) {
                 console.error('Error fetching data:', error);
             }
@@ -42,7 +41,7 @@ const Article = () => {
                 <div className={Style.card}>
 
                     {articles && articles.map((articles, index) => (
-                        <Card key={index} image={articles.photo} title={articles.name} description={articles.description} price={articles.price} id={articles.id} />
+                        <Card key={index} image={articles.photo} title={articles.name} description={articles.description} price={articles.price} id={articles.id} isMyProduct={false}/>
                     ))}
                 </div>
             </div>

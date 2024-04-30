@@ -1,0 +1,82 @@
+.container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    overflow: hidden;
+}
+
+.box {
+    margin-top: 100px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    width: 60vw;
+}
+
+.title {
+    border-bottom: 2px solid #444;
+    width: 100%;
+}
+
+.filterGrp {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    gap: 20px;
+    width: 100%;
+}
+
+.filterBtns {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+    padding: 0 10px;
+}
+
+.filterBtn {
+    text-decoration: none;
+    color: #444;
+    font-size: 20px;
+}
+
+.btnActive {
+    border-bottom: 2px solid #444;
+    font-weight: bold;
+}
+
+.vertIcon {
+    color: #444;
+}
+
+.products {
+    display: grid;
+    grid-template-columns: repeat(1, 1fr);
+    grid-gap: 20px;
+    justify-content: flex-start;
+    padding: 50px 10px 0;
+    overflow-y: auto;
+    height: 70vh;
+}
+
+@media (min-width: 1024px) {
+    .products {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (min-width: 1200px) {
+    .products {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+@media (min-width: 1700px) {
+    .products {
+        grid-template-columns: repeat(4, 1fr);
+    }
+}

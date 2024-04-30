@@ -12,6 +12,7 @@ import { useAuth } from './Authentication/AuthProvider';
 interface ActionAreaCardProps {
     image: string;
     title: string;
+    isMyProduct: boolean;
     description: string;
     price: number;
     id: number;
@@ -20,7 +21,7 @@ interface ActionAreaCardProps {
 
 
 
-const ActionAreaCard: React.FC<ActionAreaCardProps> = ({ image, title, price, description, id, }) => {
+const ActionAreaCard: React.FC<ActionAreaCardProps> = ({ image, title, price, description, id, isMyProduct = false }) => {
 
     const { getToken } = useAuth();
 
@@ -70,7 +71,7 @@ const ActionAreaCard: React.FC<ActionAreaCardProps> = ({ image, title, price, de
                 </CardContent>
 
             </CardActionArea>
-            <Button onClick={handleAddToCart} sx={{ width: '100%', }} style={{ backgroundColor: '#f6f1eb', color: 'black' }} variant="contained">Ajouter au panier</Button>
+            {!isMyProduct && <Button onClick={handleAddToCart} sx={{ width: '100%', }} style={{ backgroundColor: '#f6f1eb', color: 'black' }} variant="contained">Ajouter au panier</Button>}
 
         </Card>
     );

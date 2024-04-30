@@ -6,11 +6,13 @@ const AuthContext = React.createContext<
     {
         onLogin: (token: string) => void,
         onLogout: () => void,
-        getToken: () => JwtPayload|null,
+        getToken: () => string|null,
+        getDecodedToken: () => decodedToken|null
     }>({
         onLogin: () => null,
         onLogout: () => null,
         getToken: () => null,
+        getDecodedToken: () => null,
     });
 
 
@@ -20,10 +22,16 @@ const AuthContext = React.createContext<
  */
 const useAuth = () => React.useContext(AuthContext);
 
-
 type AuthProviderProps = {
     children: JSX.Element
 }
+
+export type decodedToken = {
+    exp: number,
+    username: string,
+    id: number,
+    email: string,
+};
 /**
  * AuthProvider component for handling authentication.
  *
@@ -43,9 +51,17 @@ function AuthProvider({ children }: AuthProviderProps) {
     };
 
     const getToken = () => {
+        const token = sessionStorage.getItem('token');
+        if (token === null) {
+            return null;
+        }
+        return token;
+    }
+
+    const getDecodedToken = () => {
         let token = sessionStorage.getItem('token');
         if (token !== null) {
-            return jwtDecode(token);
+            return jwtDecode<decodedToken>(token);
         }
         return token;
     }
@@ -54,8 +70,8 @@ function AuthProvider({ children }: AuthProviderProps) {
         onLogin: handleLogin,
         onLogout: handleLogout,
         getToken,
+        getDecodedToken,
     };
-
 
     return (
         <AuthContext.Provider value={value}>
