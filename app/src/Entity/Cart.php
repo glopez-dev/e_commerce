@@ -21,6 +21,12 @@ class Cart
     #[ORM\JoinColumn(nullable: false)]
     private ?Product $_product = null;
 
+
+    public function toArray(): array
+    {
+        return $this->getProduct()->toArray();
+    }
+
     public function getId(): ?int
     {
         return $this->id;

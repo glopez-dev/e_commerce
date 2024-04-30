@@ -46,9 +46,23 @@ class Product
     #[ORM\OneToMany(targetEntity: Cart::class, mappedBy: '_product', orphanRemoval: true)]
     private Collection $carts;
 
+    #[ORM\Column]
+    #[Groups('api')]
+    private ?bool $sold = false;
+
     public function __construct()
     {
         $this->carts = new ArrayCollection();
+    }
+
+    public function toArray(): array
+    {
+        return [
+            'id' => $this->getId(),
+            'name' => $this->getName(),
+            'description' => $this->getDescription(),
+            'photo' => $this->getPhoto(),
+        ];
     }
 
     public function getId(): ?int
@@ -161,6 +175,18 @@ class Product
                 $cart->setProduct(null);
             }
         }
+
+        return $this;
+    }
+
+    public function isSold(): ?bool
+    {
+        return $this->sold;
+    }
+
+    public function setSold(bool $sold): static
+    {
+        $this->sold = $sold;
 
         return $this;
     }

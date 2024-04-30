@@ -25,7 +25,7 @@ class Order
     /**
      * @var Collection<int, Product>
      */
-    #[ORM\OneToMany(targetEntity: Product::class, mappedBy: 'order_id')]
+    #[ORM\OneToMany(targetEntity: Product::class, mappedBy: 'order')]
     private Collection $products;
 
     #[ORM\ManyToOne(inversedBy: 'orders')]
@@ -47,6 +47,21 @@ class Order
 
         $this->setTotalPrice($this->computeTotalPrice());
         $this->setCreationDate(new \DateTimeImmutable());
+    }
+
+    public function toArray(): array
+    {
+        $products = array_map(
+            fn (Product $product) => $product->toArray(),
+            $this->getProducts()->toArray()
+        );
+
+        return [
+            'id' => $this->getId(),
+            'totalPrice' => $this->getTotalPrice(),
+            'creationDate' => $this->getCreationDate(),
+            'products' => $products,
+        ];
     }
 
     public function getId(): ?int

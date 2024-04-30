@@ -33,7 +33,7 @@ class ProductFixtures extends Fixture implements OrderedFixtureInterface
             $rand = array_rand($images);
 
             $user = array_rand($users);
-            $product->setUser($users[$user]);
+            $product->setSeller($users[$user]);
 
             $product->setName($rand);
             $product->setPhoto($images[$rand]);
