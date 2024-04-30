@@ -3,26 +3,43 @@ import Style from '../Styles/Panier.module.css';
 import axios from 'axios';
 import ArticlePanier from '../Components/ArticlePanier';
 import Button from '@mui/material/Button';
+import { useAuth } from '../Components/Authentication/AuthProvider';
+
 
 const Paniers = () => {
 
-    interface Pokemon {
-        name: string;
-        url: string;
+    interface Aticles {
         id: number;
+        name: string;
+        description: string;
+        photo: string;
+        price: number;
 
     }
 
-    const [pokemons, setPokemons] = useState<Pokemon[]>([]);
+    const [articles, setArticles] = useState<Aticles[]>([]);
 
+    const { getToken } = useAuth();
     useEffect(() => {
+
+
         const fetchData = async () => {
-            try {
-                const response = await axios.get('https://pokeapi.co/api/v2/pokemon?limit=151');
-                setPokemons(response.data.results);
-                console.log(response.data.results);
-            } catch (error) {
-                console.error('Error fetching data:', error);
+            const token = getToken();
+
+            if (token) {
+                const config = {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                };
+
+                try {
+                    const response = await axios.get('http://127.0.0.1:8000/api/carts', config);
+                    setArticles(response.data.results);
+                    console.log(response.data.results);
+                } catch (error) {
+                    console.error('Error fetching data:', error);
+                }
             }
         };
 
@@ -32,12 +49,12 @@ const Paniers = () => {
         <div className={Style.containers}>
             <div className={Style.box}>
                 <div className={Style.title}>
-                    <p>Vous avez {pokemons.length} objets dans votre panier.</p>
+                    <p>Vous avez {articles.length} objets dans votre panier.</p>
                 </div>
 
                 <div>
-                    {pokemons.map((pokemon, index) => (
-                        <ArticlePanier key={index} name={pokemon.name} commentaire="C'est la pièce la plus droçée de tout le temps !" />
+                    {articles.map((article, index) => (
+                        <ArticlePanier key={index} name={article.name} description={article.description} photo={article.photo} price={article.price} />
                     ))}
                 </div>
             </div>
@@ -47,7 +64,7 @@ const Paniers = () => {
             <div className={Style.box2}>
                 <div className={Style.cardBuy}>
                     <div className={Style.title}>
-                        <p>Vous voulez acheter les {pokemons.length} </p>
+                        <p>Vous voulez acheter les {articles.length} </p>
                     </div>
 
 
