@@ -1,36 +1,48 @@
-version: 3.8
+---
+name: e_commerce
 
 networks:
-  webserver-tier:
-  database-tier:
+  ecommerce:
 
 services: 
-  # GOOD
+
   database:
     image: postgres:14-alpine
+    restart: unless-stopped
     ports:
-      - ${POSTGRES_PORT}:5432
-    volumes:
-      - ./docker/postgres:/var/lib/postgresql/data
+      - 5432:5432
     networks:
-      - database-tier
-    environment:
-      - POSTGRES_DB=${POSTGRES_DB}
-      - POSTGRES_USER=${POSTGRES_USER}
-      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
-    restart: always
+      - ecommerce 
+    env_file:
+      - path: ./app/.env.prod
+        required: true
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U symfony"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
 
-  # IN PROGRESS
   php_fpm:
     build:
       # The Dockerfile should be located at the root of the project
       context: .
+    env_file:
+      - ./app/.env.prod
+    volumes:
+      - ./app/:/var/www/api/
+    ports:
+      - 9000:9000
+    networks:
+      - ecommerce 
     depends_on:
       - database
-    volumes:
-      - ./src:/var/www/e_commerce/:cached
-    networks:
-      - database-tier
+    healthcheck:
+      test: ["CMD-SHELL", "php", "bin/console", "doctrine:migration:migrate"]
+      interval: 5s
+      timeout: 30s
+      retries: 5
+      start_period: 30s
 
   nginx:
     image: nginx:1.25.1
@@ -40,8 +52,9 @@ services:
       - 10302:80
     volumes:
       - ./docker/nginx/default.conf:/etc/nginx/conf.d/default.conf
+      # Mount the frontend application
+      - ./front/build/:/var/www/e_commerce/
     networks:
-      - webserver-tier 
+      - ecommerce 
 
   
-volumes:
