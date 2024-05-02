@@ -5,14 +5,47 @@ import CardMedia from '@mui/material/CardMedia';
 import Typography from '@mui/material/Typography';
 import { CardActionArea } from '@mui/material';
 import Button from '@mui/material/Button';
+import axios from 'axios';
+import { useAuth } from './Authentication/AuthProvider';
+
 
 interface ActionAreaCardProps {
     image: string;
     title: string;
-    description: number;
+    isMyProduct: boolean;
+    description: string;
+    price: number;
+    id: number;
+
 }
 
-const ActionAreaCard: React.FC<ActionAreaCardProps> = ({ image, title, description }) => {
+
+
+const ActionAreaCard: React.FC<ActionAreaCardProps> = ({ image, title, price, description, id, isMyProduct = false }) => {
+
+    const { getToken } = useAuth();
+
+    const handleAddToCart = () => {
+        const token = getToken();
+
+        if (token) {
+            const config = {
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            };
+
+            axios.post(`http://127.0.0.1:8000/api/carts/${id}`, null, config)
+                .then(response => {
+                    console.log('Article ajouté au panier avec succès !');
+                })
+                .catch(error => {
+                    console.error('Erreur lors de l\'ajout au panier :', error);
+                });
+        } else {
+            console.error('Token d\'authentification introuvable.');
+        }
+    };
     return (
         <Card sx={{ width: 245 }}>
             <CardActionArea>
@@ -27,14 +60,18 @@ const ActionAreaCard: React.FC<ActionAreaCardProps> = ({ image, title, descripti
                         {title}
                     </Typography>
                     <Typography variant="body2" color="text.secondary">
+                        {price}
+                    </Typography>
+                    <Typography variant="body2" color="text.secondary">
                         {description}
                     </Typography>
+
 
 
                 </CardContent>
 
             </CardActionArea>
-            <Button sx={{ width: '100%', }} style={{ backgroundColor: '#f6f1eb', color: 'black' }} variant="contained">Ajouter au panier</Button>
+            {!isMyProduct && <Button onClick={handleAddToCart} sx={{ width: '100%', }} style={{ backgroundColor: '#f6f1eb', color: 'black' }} variant="contained">Ajouter au panier</Button>}
 
         </Card>
     );

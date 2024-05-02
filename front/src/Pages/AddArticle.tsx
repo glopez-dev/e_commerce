@@ -3,6 +3,7 @@ import Style from '../Styles/AddArticle.module.css';
 import TextField from '@mui/material/TextField';
 import Button from '@mui/material/Button';
 import axios from 'axios';
+import {useAuth} from "../Components/Authentication/AuthProvider";
 
 interface Article {
     name: string;
@@ -18,7 +19,7 @@ const AddArticle: React.FC = () => {
         price: 0,
         photo: ''
     });
-
+    const authProvider = useAuth();
     const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value } = event.target;
         setFormData({ ...formData, [name]: value });
@@ -27,7 +28,12 @@ const AddArticle: React.FC = () => {
     const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault();
         try {
-            const response = await axios.post('http://127.0.0.1:8000/api/product', formData);
+            const response = await axios.post('http://127.0.0.1:8000/api/products', formData,
+                {
+                    headers: {
+                        Authorization: `Bearer ${authProvider.getToken()}`,
+                    },
+                });
             console.log('Response:', response);
             console.log('Article ajouté avec succès !');
         } catch (error) {

@@ -7,6 +7,8 @@ import Card from './Card';
 interface Article {
     name: string;
     photo: string;
+    description: string;
+    price: number;
     id: number;
 
 }
@@ -19,7 +21,6 @@ const Article = () => {
             try {
                 const response = await axios.get('http://127.0.0.1:8000/api/products');
                 setArticles(response.data);
-                console.log(response.data);
             } catch (error) {
                 console.error('Error fetching data:', error);
             }
@@ -30,15 +31,17 @@ const Article = () => {
 
     return (
         <div className={Style.containers}>
-            <div className={Style.title}>
-                <h1>LE TEMPS CHANGE D'ALLURE</h1>
-                <p>Ode à la simplicité, la montre mécanique Hermès Cut affirme un style puissant.</p>
+            <div className={Style.containers1}>
+                <div className={Style.title}>
+                    <h1>PRODUITS</h1>
+
+                </div>
             </div>
             <div className={Style.article}>
                 <div className={Style.card}>
 
                     {articles && articles.map((articles, index) => (
-                        <Card key={index} image={articles.photo} title={articles.name} description={articles.id} />
+                        <Card key={index} image={articles.photo} title={articles.name} description={articles.description} price={articles.price} id={articles.id} isMyProduct={false}/>
                     ))}
                 </div>
             </div>

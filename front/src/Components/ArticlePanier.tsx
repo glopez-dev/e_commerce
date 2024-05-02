@@ -3,18 +3,25 @@ import Style from '../Styles/Panier.module.css';
 
 interface ArticleProps {
     name: string;
-    commentaire: string;
+    description: string;
+    photo: string;
+    price: number;
+
+
 }
 
-const ArticleComponent: React.FC<ArticleProps> = ({ name, commentaire }) => {
+const ArticleComponent: React.FC<ArticleProps> = ({ name, description, photo, price }) => {
     return (
 
         <div className={Style.article}>
             <div className={Style.box1}>
-                <div className={Style.img}>Article</div>
+                <div className={Style.img}>
+                    <img className={Style.img1} src={photo} alt={name} />
+                </div>
                 <div className={Style.detail}>
                     <p>{name}</p>
-                    <p>{commentaire}</p>
+                    <p>{description}</p>
+                    <p>{price} $</p>
 
                 </div>
             </div>

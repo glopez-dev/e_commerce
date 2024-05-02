@@ -1,76 +1,198 @@
-import Style from '../Styles/Header.module.css';
-import Person2OutlinedIcon from '@mui/icons-material/Person2Outlined';
-import Menu from './SideBar';
-import ShoppingBasketOutlinedIcon from '@mui/icons-material/ShoppingBasketOutlined';
+import React, { useState, useEffect } from 'react';
+import AppBar from '@mui/material/AppBar';
+import Box from '@mui/material/Box';
+import Toolbar from '@mui/material/Toolbar';
+import IconButton from '@mui/material/IconButton';
+import Typography from '@mui/material/Typography';
+import Menu from '@mui/material/Menu';
+import MenuIcon from '@mui/icons-material/Menu';
+import Container from '@mui/material/Container';
+import Avatar from '@mui/material/Avatar';
 import Button from '@mui/material/Button';
-import SearchBar from './Searchbar';
-import AddIcon from '@mui/icons-material/Add';
+import Tooltip from '@mui/material/Tooltip';
+import MenuItem from '@mui/material/MenuItem';
+import AdbIcon from '@mui/icons-material/Adb';
+import PersonIcon from '@mui/icons-material/Person';
 import { Link } from 'react-router-dom';
-import vinted from '../assets/Vinted.png';
+import { useAuth } from './Authentication/AuthProvider';
+import HemHess from '../assets/HemHess.png';
+
+
+const settings = ['Profile', 'Account', 'Dashboard', 'Logout'];
+
+function ResponsiveAppBar() {
+    const [anchorElNav, setAnchorElNav] = useState<null | HTMLElement>(null);
+    const [anchorElUser, setAnchorElUser] = useState<null | HTMLElement>(null);
+    const { getToken } = useAuth();
+    const { onLogout } = useAuth();
+
+    const [userToken, setUserToken] = useState<string | null>(null);
+
+    useEffect(() => {
+        const fetchToken = async () => {
+            try {
+                const token = getToken();
+
+
+                setUserToken(token);
+            } catch (error) {
+                console.error('Erreur lors de la récupération du jeton:', error);
+            }
+        };
 
 
 
-/**
- * Renders the head component.
- *
- * @return {JSX.Element} The head component.
- */
-export default function Head(): JSX.Element {
+        fetchToken();
+
+
+    }, [getToken]);
+
+    const handleLogout = () => {
+        onLogout();
+        setUserToken(null);
+        window.location.reload();
+
+    }
+
+    const handleOpenNavMenu = (event: React.MouseEvent<HTMLElement>) => {
+        setAnchorElNav(event.currentTarget);
+    };
+
+    const handleOpenUserMenu = (event: React.MouseEvent<HTMLElement>) => {
+        setAnchorElUser(event.currentTarget);
+    };
+
+    const handleCloseNavMenu = () => {
+        setAnchorElNav(null);
+    };
+
+    const handleCloseUserMenu = () => {
+        setAnchorElUser(null);
+    };
+
     return (
+        <AppBar position="fixed" sx={{ bgcolor: '#fffcf7' }}>
+            <Container maxWidth="xl">
+                <Toolbar disableGutters>
+                    <AdbIcon sx={{ display: { xs: 'none', md: 'flex' }, mr: 1 }} />
+                    <Typography
+                        variant="h6"
+                        noWrap
+                        component="a"
+                        href="#app-bar-with-responsive-menu"
+                        sx={{
+                            mr: 2,
+                            display: { xs: 'none', md: 'flex' },
+                            fontFamily: 'monospace',
+                            fontWeight: 700,
+                            letterSpacing: '.3rem',
+                            color: 'black',
+                            textDecoration: 'none',
+                        }}
+                    >
+                        <Link to="/" style={{ color: 'black', textDecoration: 'none' }}>
+                            <img src={HemHess} alt="logo" style={{ width: 50, height: 50, padding: 10 }} />
+                        </Link>
+                    </Typography>
 
-        <div className={Style.ctn1}>
+                    <Box sx={{ flexGrow: 1, display: { xs: 'flex', md: 'none' } }}>
+                        <IconButton
+                            size="large"
+                            aria-label="account of current user"
+                            aria-controls="menu-appbar"
+                            aria-haspopup="true"
+                            onClick={handleOpenNavMenu}
+                            style={{ color: 'black', borderColor: 'red' }}
+                        >
+                            <MenuIcon />
+                        </IconButton>
+                        <Menu
+                            id="menu-appbar"
+                            anchorEl={anchorElNav}
+                            anchorOrigin={{
+                                vertical: 'bottom',
+                                horizontal: 'left',
+                            }}
+                            keepMounted
+                            transformOrigin={{
+                                vertical: 'top',
+                                horizontal: 'left',
+                            }}
+                            open={Boolean(anchorElNav)}
+                            onClose={handleCloseNavMenu}
+                            sx={{
+                                display: { xs: 'block', md: 'none' },
+                            }}
+                        >
+                            <MenuItem onClick={handleCloseNavMenu}>
+                                <Link to="/Panier" style={{ textDecoration: 'none', color: 'black' }}>
+                                    <Typography textAlign="center">Panier</Typography>
+                                </Link>
+                            </MenuItem>
 
-            <div className={Style.ctn2}>
+                        </Menu>
+                    </Box>
 
-                <div className={Style.gauche}>
-                    <Menu />
-                    <SearchBar onSearch={() => { }} />
-                    <div />
-                </div>
+                    <Box sx={{ flexGrow: 1, display: { xs: 'none', md: 'flex' } }}>
+                        <Link to="/Panier" style={{ textDecoration: 'none', color: 'black' }}>
+                            <Button onClick={handleCloseNavMenu} sx={{ my: 2, color: 'black', display: 'flex' }}>
+                                Panier
+                            </Button>
+                        </Link>
 
-                <div className={Style.mid}>
-                    {/* <img className={Style.logo} src={vinted} /> */}
-                </div>
+                    </Box>
 
-                <div className={Style.droite}>
-
-                    <Link to="/login">
-                        <Button variant="text" className={Style.btn} >
-                            <Person2OutlinedIcon sx={{ color: '#444' }} />
-
-                            <p className={Style.text}> Compte</p>
-
-                        </Button>
-                    </Link>
-
-                    <Link to="/panier">
-
-                        <Button variant="text" className={Style.btn}  >
-                            <ShoppingBasketOutlinedIcon sx={{ color: '#444' }} />
-                            <p className={Style.text}> Panier</p>
-                        </Button>
-
-                    </Link>
-
-                    <Link to="/addArticle" className={Style.btn}>
-
-                        <Button variant="text" className={Style.btn}  >
-                            <AddIcon sx={{ color: '#444' }} />
-                            <p className={Style.text}> Ajouter</p>
-                        </Button>
-
-                    </Link>
+                    {userToken ? (
+                        <Box sx={{ flexGrow: 0 }}>
+                            <Tooltip title="Open settings">
+                                <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
+                                    <PersonIcon />
+                                </IconButton>
+                            </Tooltip>
+                            <Menu
+                                sx={{ mt: '45px' }}
+                                id="menu-appbar"
+                                anchorEl={anchorElUser}
+                                anchorOrigin={{
+                                    vertical: 'top',
+                                    horizontal: 'right',
+                                }}
+                                keepMounted
+                                transformOrigin={{
+                                    vertical: 'top',
+                                    horizontal: 'right',
+                                }}
+                                open={Boolean(anchorElUser)}
+                                onClose={handleCloseUserMenu}
+                            >
 
 
+                                <MenuItem onClick={handleCloseUserMenu}>
+                                    <Typography textAlign="center">Profil</Typography>
+                                </MenuItem>
+                                <MenuItem onClick={handleCloseNavMenu}>
+                                    <Link to="/AddArticle" style={{ textDecoration: 'none', color: 'black' }}>
+                                        <Typography textAlign="center">Ajouter un article</Typography>
+                                    </Link>
+                                </MenuItem>
+                                <MenuItem onClick={handleCloseUserMenu}>
+                                    <Typography onClick={handleLogout} textAlign="center">Déconnexion</Typography>
+                                </MenuItem>
 
 
-                    <div />
-
-                </div>
-            </div>
-
-        </div>
-
-
+                            </Menu>
+                        </Box>
+                    ) : (
+                        <Box sx={{ flexGrow: 0 }}>
+                            <Link to="/login" style={{ textDecoration: 'none', color: 'black' }}>
+                                <Button>Se connecter</Button>
+                            </Link>
+                        </Box>
+                    )}
+                </Toolbar>
+            </Container>
+        </AppBar>
     );
-};
+}
+
+export default ResponsiveAppBar;

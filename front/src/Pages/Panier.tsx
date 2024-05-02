@@ -1,66 +1,76 @@
 import React, { useEffect, useState } from 'react';
 import Style from '../Styles/Panier.module.css';
-import axios from 'axios';
+import axios, { AxiosResponse } from 'axios';
 import ArticlePanier from '../Components/ArticlePanier';
 import Button from '@mui/material/Button';
+import { useAuth } from '../Components/Authentication/AuthProvider';
 
-const Paniers = () => {
+interface Article {
+    id: number;
+    name: string;
+    description: string;
+    photo: string;
+    price: number;
+}
 
-    interface Pokemon {
-        name: string;
-        url: string;
-        id: number;
+const Paniers: React.FC = () => {
+    const { getToken } = useAuth();
+    const [articles, setArticles] = useState<Article[]>([]);
 
-    }
-
-    const [pokemons, setPokemons] = useState<Pokemon[]>([]);
 
     useEffect(() => {
+
+
         const fetchData = async () => {
-            try {
-                const response = await axios.get('https://pokeapi.co/api/v2/pokemon?limit=151');
-                setPokemons(response.data.results);
-                console.log(response.data.results);
-            } catch (error) {
-                console.error('Error fetching data:', error);
+            const token = getToken();
+            console.log("Token : " + token);
+
+            if (token) {
+                const config = {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                };
+
+                try {
+                    const response: AxiosResponse<Article[]> = await axios.get('http://127.0.0.1:8000/api/carts', config);
+                    setArticles(response.data);
+                } catch (error) {
+                    console.error('Erreur lors du chargement des données:', error);
+
+                }
             }
         };
 
         fetchData();
-    }, []);
+    }, [getToken]);
+
     return (
         <div className={Style.containers}>
-            <div className={Style.box}>
-                <div className={Style.title}>
-                    <p>Vous avez {pokemons.length} objets dans votre panier.</p>
-                </div>
+            <div className={Style.containers1}>
 
-                <div>
-                    {pokemons.map((pokemon, index) => (
-                        <ArticlePanier key={index} name={pokemon.name} commentaire="C'est la pièce la plus droçée de tout le temps !" />
-                    ))}
-                </div>
-            </div>
-
-
-
-            <div className={Style.box2}>
-                <div className={Style.cardBuy}>
+                <div className={Style.box}>
                     <div className={Style.title}>
-                        <p>Vous voulez acheter les {pokemons.length} </p>
+                        <p>Vous avez {articles.length} objets dans votre panier.</p>
                     </div>
 
+                    <div>
+                        {articles.map((article) => (
+                            <ArticlePanier key={article.id} {...article} />
+                        ))}
+                    </div>
+                </div>
 
+                <div className={Style.box2}>
+                    <div className={Style.cardBuy}>
+                        <div className={Style.title}>
+                            <p>Vous voulez acheter les {articles.length} </p>
+                        </div>
 
-                    <Button style={{ color: 'black', backgroundColor: '#f6f1eb', width: '100%' }} variant="text">Acheter</Button>
-
-
-
-
+                        <Button style={{ color: 'black', borderTop: '1px solid black', width: '100%', }} variant="text">Acheter</Button>
+                    </div>
                 </div>
             </div>
-
-
         </div>
     );
 };

@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use App\Entity\User;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -133,5 +134,15 @@ class ProductController extends AbstractController
 
         $data = ['message' => 'Product deleted successfully'];
         return $this->json(data: $data, status: Response::HTTP_ACCEPTED);
+    }
+
+    #[IsGranted('IS_AUTHENTICATED')]
+    #[Route('/products/user/{login}', name: 'get_product', methods: ['GET'])]
+    public function getProduct(Request $request): JsonResponse
+    {
+        $user = $this->entityManager->getRepository(User::class)->findOneBy(['login' => $request->attributes->get('login')]);
+        $products = $user->getProducts();
+
+        return $this->json($products, Response::HTTP_OK, [], ['groups' => ['api']]);
     }
 }
