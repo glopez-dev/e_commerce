@@ -7,8 +7,6 @@ import Register from './Pages/Register';
 import AddArticle from './Pages/AddArticle';
 import { AuthProvider } from "./Components/Authentication/AuthProvider";
 import ProtectedRoute from "./Components/Authentication/ProtectedRoute";
-import MyProduct from "./Pages/User/MyProduct";
-import './App.css';
 
 /**
  * Renders the main application component.
@@ -19,29 +17,27 @@ function App(): JSX.Element {
     return (
 
         <BrowserRouter>
-            <Head />
-            <AuthProvider>
-                <Routes>
 
-                    <Route path="/" element={<Home />} />
-                    <Route path="/login" element={<Login />} />
-                    <Route path="/register" element={<Register />} />
-                    <Route path="/panier" element={
-                        <ProtectedRoute>
-                            <Panier />
-                        </ProtectedRoute>
-                    } />
-                    <Route path="/addArticle" element={
-                        <ProtectedRoute>
-                            <AddArticle />
-                        </ProtectedRoute>
-                    } />
-                    <Route path="/myProduct" element={
-                        <ProtectedRoute>
-                            <MyProduct />
-                        </ProtectedRoute>
-                    } />
-                </Routes>
+            <AuthProvider>
+                <>
+                    <Head />
+                    <Routes>
+
+                        <Route path="/" element={<Home />} />
+                        <Route path="/login" element={<Login />} />
+                        <Route path="/register" element={<Register />} />
+                        <Route path="/panier" element={
+                            <ProtectedRoute>
+                                <Panier />
+                            </ProtectedRoute>
+                        } />
+                        <Route path="/addArticle" element={
+                            <ProtectedRoute>
+                                <AddArticle />
+                            </ProtectedRoute>
+                        } />
+                    </Routes>
+                </>
             </AuthProvider>
         </BrowserRouter>
     );

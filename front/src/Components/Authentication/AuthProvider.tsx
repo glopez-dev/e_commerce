@@ -1,13 +1,13 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
-import {jwtDecode, JwtPayload} from "jwt-decode";
+import { jwtDecode, JwtPayload } from "jwt-decode";
 
 const AuthContext = React.createContext<
     {
         onLogin: (token: string) => void,
         onLogout: () => void,
-        getToken: () => string|null,
-        getDecodedToken: () => decodedToken|null
+        getToken: () => string | null,
+        getDecodedToken: () => decodedToken | null
     }>({
         onLogin: () => null,
         onLogout: () => null,

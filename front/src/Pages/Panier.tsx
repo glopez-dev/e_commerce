@@ -17,9 +17,13 @@ const Paniers: React.FC = () => {
     const { getToken } = useAuth();
     const [articles, setArticles] = useState<Article[]>([]);
 
+
     useEffect(() => {
+
+
         const fetchData = async () => {
             const token = getToken();
+            console.log("Token : " + token);
 
             if (token) {
                 const config = {
@@ -43,25 +47,28 @@ const Paniers: React.FC = () => {
 
     return (
         <div className={Style.containers}>
-            <div className={Style.box}>
-                <div className={Style.title}>
-                    <p>Vous avez {articles.length} objets dans votre panier.</p>
-                </div>
+            <div className={Style.containers1}>
 
-                <div>
-                    {articles.map((article) => (
-                        <ArticlePanier key={article.id} {...article} />
-                    ))}
-                </div>
-            </div>
-
-            <div className={Style.box2}>
-                <div className={Style.cardBuy}>
+                <div className={Style.box}>
                     <div className={Style.title}>
-                        <p>Vous voulez acheter les {articles.length} </p>
+                        <p>Vous avez {articles.length} objets dans votre panier.</p>
                     </div>
 
-                    <Button style={{ color: 'black', backgroundColor: '#f6f1eb', width: '100%' }} variant="text">Acheter</Button>
+                    <div>
+                        {articles.map((article) => (
+                            <ArticlePanier key={article.id} {...article} />
+                        ))}
+                    </div>
+                </div>
+
+                <div className={Style.box2}>
+                    <div className={Style.cardBuy}>
+                        <div className={Style.title}>
+                            <p>Vous voulez acheter les {articles.length} </p>
+                        </div>
+
+                        <Button style={{ color: 'black', borderTop: '1px solid black', width: '100%', }} variant="text">Acheter</Button>
+                    </div>
                 </div>
             </div>
         </div>
