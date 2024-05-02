@@ -93,9 +93,13 @@ function ResponsiveAppBar() {
                         <Link to="/" style={{ color: 'black', textDecoration: 'none' }}>
                             <img src={HemHess} alt="logo" style={{ width: 50, height: 50, padding: 10 }} />
                         </Link>
+
                     </Typography>
 
-                    <Box sx={{ flexGrow: 1, display: { xs: 'flex', md: 'none' } }}>
+
+
+                    <Box sx={{ flexGrow: 1, display: { xs: 'flex', md: 'none', justifyContent: 'space-between' } }}>
+
                         <IconButton
                             size="large"
                             aria-label="account of current user"
@@ -106,6 +110,7 @@ function ResponsiveAppBar() {
                         >
                             <MenuIcon />
                         </IconButton>
+
                         <Menu
                             id="menu-appbar"
                             anchorEl={anchorElNav}
@@ -125,13 +130,19 @@ function ResponsiveAppBar() {
                             }}
                         >
                             <MenuItem onClick={handleCloseNavMenu}>
-                                <Link to="/Panier" style={{ textDecoration: 'none', color: 'black' }}>
-                                    <Typography textAlign="center">Panier</Typography>
-                                </Link>
+
+
+
                             </MenuItem>
 
                         </Menu>
+
+                        <Link to="/" style={{ color: 'black', textDecoration: 'none' }}>
+                            <img src={HemHess} alt="logo" style={{ width: 50, height: 50, padding: 10, }} />
+                        </Link>-
                     </Box>
+
+
 
                     <Box sx={{ flexGrow: 1, display: { xs: 'none', md: 'flex' } }}>
                         <Link to="/Panier" style={{ textDecoration: 'none', color: 'black' }}>
@@ -180,18 +191,21 @@ function ResponsiveAppBar() {
                                 </MenuItem>
 
 
+                              
                             </Menu>
                         </Box>
                     ) : (
                         <Box sx={{ flexGrow: 0 }}>
                             <Link to="/login" style={{ textDecoration: 'none', color: 'black' }}>
-                                <Button>Se connecter</Button>
+                                <Button sx={{ my: 2, color: 'black', display: 'flex' }}>Se connecter</Button>
+
                             </Link>
                         </Box>
                     )}
                 </Toolbar>
             </Container>
-        </AppBar>
+        </AppBar >
+
     );
 }
 
