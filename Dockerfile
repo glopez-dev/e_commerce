@@ -5,6 +5,7 @@ ENV APP_HOME /var/www/e_commerce
 ARG HOST_UID=1000
 ARG HOST_GID=1000
 ENV USERNAME=www-data
+ENV APP_ENV prod
 
 # Install all the dependencies and enable PHP modules
 RUN apt-get update && apt-get upgrade -y && apt-get install -y \ 
