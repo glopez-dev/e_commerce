@@ -62,7 +62,6 @@
 
 .article {
     height: 40%;
-    border-bottom: 1px solid black;
     display: flex;
 
 
@@ -91,6 +90,7 @@
 
 
 }
+
 
 
 

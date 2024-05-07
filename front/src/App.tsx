@@ -7,6 +7,7 @@ import Register from './Pages/Register';
 import AddArticle from './Pages/AddArticle';
 import { AuthProvider } from "./Components/Authentication/AuthProvider";
 import ProtectedRoute from "./Components/Authentication/ProtectedRoute";
+import Detail from './Pages/Detail';
 
 /**
  * Renders the main application component.
@@ -29,8 +30,10 @@ function App(): JSX.Element {
                         <Route path="/panier" element={
                             <ProtectedRoute>
                                 <Panier />
+
                             </ProtectedRoute>
                         } />
+                        <Route path="/detail/:id" element={<Detail />} />
                         <Route path="/addArticle" element={
                             <ProtectedRoute>
                                 <AddArticle />
