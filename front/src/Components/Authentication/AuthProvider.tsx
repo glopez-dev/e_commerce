@@ -7,12 +7,14 @@ const AuthContext = React.createContext<
         onLogin: (token: string) => void,
         onLogout: () => void,
         getToken: () => string | null,
-        getDecodedToken: () => decodedToken | null
+        getDecodedToken: () => decodedToken | null,
+        setToken: (token: string) => void,
     }>({
         onLogin: () => null,
         onLogout: () => null,
         getToken: () => null,
         getDecodedToken: () => null,
+        setToken: () => null,
     });
 
 
@@ -41,14 +43,19 @@ export type decodedToken = {
 function AuthProvider({ children }: AuthProviderProps) {
     const navigate = useNavigate();
 
-    const handleLogin = (token: string) => {
+    const setToken = (token: string) => {
         sessionStorage.setItem('token', token);
+    }
+
+    const handleLogin = (token: string) => {
+        setToken(token);
         navigate("/");
     };
 
     const handleLogout = () => {
         sessionStorage.removeItem('token');
     };
+
 
     const getToken = () => {
         const token = sessionStorage.getItem('token');
@@ -71,6 +78,7 @@ function AuthProvider({ children }: AuthProviderProps) {
         onLogout: handleLogout,
         getToken,
         getDecodedToken,
+        setToken,
     };
 
     return (

@@ -24,23 +24,40 @@ use \Nelmio\ApiDocBundle\Annotation\Security as NelmioSecurity;
 #[Route('/api')]
 class UserController extends AbstractController
 {
-
-
-    public function isLoginOrEmailUsed(array $content, EntityManagerInterface $em): array
+    public function isLoginOrEmailUsed(
+        array $content,
+        EntityManagerInterface $em,
+        bool $onlyVerifyEmail = false,
+        bool $onlyVerifyLogin = false
+    ): array
     {
-        if (null !== $em->getRepository(User::class)->findOneBy(['email' => $content['email']])) {
-            return [
-                true,
-                'email',
-                'Cet email est déjà associé à un compte.'
-            ];
-        }
-        if (null !== $em->getRepository(User::class)->findOneBy(['login' => $content['login']])) {
-            return [
-                true,
-                'login',
-                'Ce nom d\'utilisateur est déjà utilisé.'
-            ];
+        $emailUser = $em->getRepository(User::class)->findOneBy(['email' => $content['email']]);
+        $emailError = [
+            true,
+            'email',
+            'Cet email est déjà associé à un compte.'
+        ];
+        $loginUser = $em->getRepository(User::class)->findOneBy(['login' => $content['login']]);
+        $loginError = [
+            true,
+            'login',
+            'Ce nom d\'utilisateur est déjà utilisé.'
+        ];
+        if ($onlyVerifyEmail) {
+            if (null !== $emailUser) {
+                return $emailError;
+            }
+        } elseif ($onlyVerifyLogin) {
+            if (null !== $loginUser) {
+                return $loginError;
+            }
+        } else {
+            if (null !== $emailUser) {
+                return $emailError;
+            }
+            if (null !== $loginUser) {
+                return $loginError;
+            }
         }
         return [false, ''];
     }
@@ -235,15 +252,28 @@ class UserController extends AbstractController
     )]
     #[IsGranted('IS_AUTHENTICATED')]
     #[Route(path: '/users', name: 'app_update_user', methods: ['PUT'])]
-    public function updateCurrentUser(Request $request, EntityManagerInterface $em): JsonResponse
+    public function updateCurrentUser(
+        Request $request,
+        EntityManagerInterface $em,
+        JWTTokenManagerInterface $tokenManager,
+    ): JsonResponse
     {
         $user = $this->getUser();
         $content = $this->getContentFromRequest($request, 'app_update_user');
 
         // Verify if login or email is already use by another user
-        $this->isLoginOrEmailUsed($content, $em);
+        if ($user->getEmail() !== $content['email']) {
+            $isUsed = $this->isLoginOrEmailUsed($content, $em, true);
+        } elseif ($user->getLogin()!== $content['login']) {
+            $isUsed = $this->isLoginOrEmailUsed($content, $em, false, true);
+        }
+        if (isset($isUsed)) {
+            return new JsonResponse([
+                'type' =>  $isUsed[1],
+                'message' => $isUsed[2]
+            ], Response::HTTP_BAD_REQUEST);
+        }
 
-        /** @disregard P1013 */
         $user->setEmail($content['email'])
             ->setLogin($content['login'])
             ->setFirstname($content['firstname'])
@@ -257,7 +287,11 @@ class UserController extends AbstractController
         }
 
         /** @disregard P1013 */
-        return $this->json($user->getUserDisplay(), Response::HTTP_OK);
+        return $this->json([
+            'user' => $user->getUserDisplay(),
+            'message' => 'Compte mis à jour avec succès.',
+            'token' => $tokenManager->create($user)
+        ], Response::HTTP_OK);
     }
 
     #[Route(path: '/logout', name: 'app_logout', methods: 'GET')]

@@ -7,7 +7,7 @@ import axios from 'axios';
 import {useAuth} from "../Components/Authentication/AuthProvider";
 import {Alert} from "@mui/material";
 
-type Error = {
+export type ErrorType = {
     isError: boolean,
     message: string,
     type: string
@@ -20,14 +20,14 @@ const Register: React.FC = () => {
     const [lastname, setLastname] = useState<string>('');
     const [confirmPassword, setConfirmPassword] = useState<string>('');
     const [login, setLogin] = useState<string>('');
-    const [passwordError, setPasswordError] = useState<Error>(
+    const [passwordError, setPasswordError] = useState<ErrorType>(
         {
             isError: false,
             message: '',
             type: 'password',
         }
     )
-    const [error, setError] = useState<Error>(
+    const [error, setError] = useState<ErrorType>(
         {
             isError: false,
             message: '',

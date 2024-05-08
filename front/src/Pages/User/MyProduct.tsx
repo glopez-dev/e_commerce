@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useAuth } from "../../Components/Authentication/AuthProvider";
 import axios from "axios";
-import Style from '../../Styles/MyProduct.module.css';
+import Style from '../../Styles/User/MyProduct.module.css';
 import ActionAreaCard from "../../Components/Card";
 import { IconButton, Menu, MenuItem } from "@mui/material";
 import MoreVertIcon from '@mui/icons-material/MoreVert';

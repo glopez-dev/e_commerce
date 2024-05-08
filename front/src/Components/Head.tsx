@@ -7,13 +7,12 @@ import Typography from '@mui/material/Typography';
 import Menu from '@mui/material/Menu';
 import MenuIcon from '@mui/icons-material/Menu';
 import Container from '@mui/material/Container';
-import Avatar from '@mui/material/Avatar';
 import Button from '@mui/material/Button';
 import Tooltip from '@mui/material/Tooltip';
 import MenuItem from '@mui/material/MenuItem';
 import AdbIcon from '@mui/icons-material/Adb';
 import PersonIcon from '@mui/icons-material/Person';
-import { Link } from 'react-router-dom';
+import {Link} from 'react-router-dom';
 import { useAuth } from './Authentication/AuthProvider';
 import HemHess from '../assets/HemHess.png';
 
@@ -33,7 +32,6 @@ function ResponsiveAppBar() {
             try {
                 const token = getToken();
 
-
                 setUserToken(token);
             } catch (error) {
                 console.error('Erreur lors de la récupération du jeton:', error);
@@ -51,7 +49,6 @@ function ResponsiveAppBar() {
         onLogout();
         setUserToken(null);
         window.location.reload();
-
     }
 
     const handleOpenNavMenu = (event: React.MouseEvent<HTMLElement>) => {
@@ -177,21 +174,24 @@ function ResponsiveAppBar() {
                                 onClose={handleCloseUserMenu}
                             >
 
-
                                 <MenuItem onClick={handleCloseUserMenu}>
-                                    <Typography textAlign="center">Profil</Typography>
+                                    <Link to="/user/profil" style={{ textDecoration: 'none', color: 'black', width: '100%' }}>
+                                        <Typography>Profil</Typography>
+                                    </Link>
                                 </MenuItem>
-                                <MenuItem onClick={handleCloseNavMenu}>
-                                    <Link to="/AddArticle" style={{ textDecoration: 'none', color: 'black' }}>
-                                        <Typography textAlign="center">Ajouter un article</Typography>
+                                <MenuItem onClick={handleCloseUserMenu}>
+                                    <Link to="/user/products" style={{ textDecoration: 'none', color: 'black',  width: '100%'}}>
+                                        <Typography>Mes produits</Typography>
+                                    </Link>
+                                </MenuItem>
+                                <MenuItem onClick={handleCloseUserMenu}>
+                                    <Link to="/AddArticle" style={{ textDecoration: 'none', color: 'black',  width: '100%' }}>
+                                        <Typography>Ajouter un article</Typography>
                                     </Link>
                                 </MenuItem>
                                 <MenuItem onClick={handleCloseUserMenu}>
                                     <Typography onClick={handleLogout} textAlign="center">Déconnexion</Typography>
                                 </MenuItem>
-
-
-                              
                             </Menu>
                         </Box>
                     ) : (
