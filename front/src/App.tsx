@@ -7,6 +7,7 @@ import Register from './Pages/Register';
 import AddArticle from './Pages/AddArticle';
 import { AuthProvider } from "./Components/Authentication/AuthProvider";
 import ProtectedRoute from "./Components/Authentication/ProtectedRoute";
+import MyOrders from "./Pages/Order/MyOrders";
 import Profil from "./Pages/User/Profil";
 import MyProduct from "./Pages/User/MyProduct";
 import Detail from './Pages/Detail';
@@ -33,6 +34,11 @@ function App(): JSX.Element {
                             <ProtectedRoute>
                                 <Panier />
 
+                            </ProtectedRoute>
+                        } />
+                        <Route path="/user/orders" element={
+                            <ProtectedRoute>
+                                <MyOrders />
                             </ProtectedRoute>
                         } />
                         <Route path="/detail/:id" element={<Detail />} />

@@ -136,7 +136,7 @@ function ResponsiveAppBar() {
 
                         <Link to="/" style={{ color: 'black', textDecoration: 'none' }}>
                             <img src={HemHess} alt="logo" style={{ width: 50, height: 50, padding: 10, }} />
-                        </Link>-
+                        </Link>
                     </Box>
 
 
@@ -185,8 +185,13 @@ function ResponsiveAppBar() {
                                     </Link>
                                 </MenuItem>
                                 <MenuItem onClick={handleCloseUserMenu}>
-                                    <Link to="/AddArticle" style={{ textDecoration: 'none', color: 'black',  width: '100%' }}>
-                                        <Typography>Ajouter un article</Typography>
+                                    <Link to="/user/orders" style={{ textDecoration: 'none', color: 'black', width: '100%' }}>
+                                        <Typography textAlign="center">Mes Commandes</Typography>
+                                    </Link>
+                                </MenuItem>
+                                <MenuItem onClick={handleCloseNavMenu}>
+                                    <Link to="/AddArticle" style={{ textDecoration: 'none', color: 'black', width: '100%' }}>
+                                        <Typography textAlign="center">Ajouter un article</Typography>
                                     </Link>
                                 </MenuItem>
                                 <MenuItem onClick={handleCloseUserMenu}>

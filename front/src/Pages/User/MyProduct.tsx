@@ -7,13 +7,13 @@ import { IconButton, Menu, MenuItem } from "@mui/material";
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 
 
-type product = {
+export type Product = {
     id: number,
     description: string,
     name: string,
-    price: number,
     photo: string
-    sold: boolean
+    sold: boolean,
+    price: number,
 }
 
 const options = [
@@ -24,8 +24,8 @@ const options = [
 const ITEM_HEIGHT = 48;
 
 export default function MyProduct(): React.JSX.Element {
-    const [products, setProducts] = useState<product[] | null>(null);
-    const [filteredProducts, setFilteredProducts] = useState<product[] | null>(null);
+    const [products, setProducts] = useState<Product[] | null>(null);
+    const [filteredProducts, setFilteredProducts] = useState<Product[] | null>(null);
     const [filter, setFilter] = useState<string>("all")
     const authProvider = useAuth();
     const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);

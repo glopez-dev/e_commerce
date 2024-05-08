@@ -146,8 +146,12 @@ class CartController extends AbstractController
         /** @disregard P1013 */
         $user->addOrder($order);
 
-        try {
+        foreach ($carted_items as $item) {
+            $this->entityManager->remove($item);
+            $this->entityManager->flush();
+        }
 
+        try {
             foreach ($products as $product) {
                 $product->setSold(true);
                 $this->entityManager->persist($product);
@@ -155,19 +159,13 @@ class CartController extends AbstractController
 
             $this->entityManager->persist($order);
             $this->entityManager->persist($user);
+
             $this->entityManager->flush();
         } catch (Exception $error) {
             $data = ['error' => $error->getMessage()];
             return $this->json($data, Response::HTTP_BAD_REQUEST);
         }
 
-        $normalized_order = [
-            'id' => $order->getId(),
-            'totalPrice' => $order->getTotalPrice(),
-            'creationDate' => $order->getCreationDate(),
-            'products' => $this->normalizeCart(),
-        ];
-
-        return $this->json($normalized_order, Response::HTTP_OK);
+        return $this->json(['message' => 'Commande bien validée !'], Response::HTTP_OK);
     }
 }

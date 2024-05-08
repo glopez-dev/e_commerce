@@ -13,11 +13,11 @@ class Cart
     #[ORM\Column]
     private ?int $id = null;
 
-    #[ORM\ManyToOne(inversedBy: 'carts')]
+    #[ORM\ManyToOne(cascade: ['persist'], inversedBy: 'carts')]
     #[ORM\JoinColumn(nullable: false)]
     private ?User $_user = null;
 
-    #[ORM\ManyToOne(inversedBy: 'carts')]
+    #[ORM\ManyToOne(cascade: ['persist'], inversedBy: 'carts')]
     #[ORM\JoinColumn(nullable: false)]
     private ?Product $_product = null;
 
