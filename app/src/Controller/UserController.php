@@ -193,9 +193,9 @@ class UserController extends AbstractController
                 return new JsonResponse(['token' => $tokenManager->create($user)], Response::HTTP_OK);
             }
         }
-
-        $data = ['token' => $tokenManager->create($user)];
-        return new JsonResponse($data, Response::HTTP_OK);
+        return new JsonResponse([
+            'message' => 'Mauvais nom d\'utilisateur ou mot de passe.'
+        ], Response::HTTP_UNAUTHORIZED);
     }
 
     #[\OpenApi\Attributes\Response(

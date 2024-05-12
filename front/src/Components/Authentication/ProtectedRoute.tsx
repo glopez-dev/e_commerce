@@ -2,7 +2,7 @@ import { Navigate } from "react-router-dom";
 import { useAuth } from "./AuthProvider";
 
 
-type ProctectedRouteProps = {
+type ProtectedRouteProps = {
     children: JSX.Element
 }
 /**
@@ -14,7 +14,7 @@ type ProctectedRouteProps = {
  *
  * @author [Gabriel LOPEZ](https://github.com/glopez-dev)
  */
-export default function ProtectedRoute({ children }: ProctectedRouteProps): JSX.Element {
+export default function ProtectedRoute({ children }: ProtectedRouteProps): JSX.Element {
     const { getToken } = useAuth();
     const token = getToken();
     if (token === null) {

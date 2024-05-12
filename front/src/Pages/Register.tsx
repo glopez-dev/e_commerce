@@ -146,6 +146,11 @@ const Register: React.FC = () => {
                                         variant="outlined"
                                         type="password"
                                         value={password}
+                                        inputProps={{
+                                            pattern: '^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&])[A-Za-z\\d@$!%*?&]{8,}$',
+                                            title: 'Votre mot de passe doit contenir au moins 8 caractères ' +
+                                                'dont une majuscule, une minuscule, un chiffre et un caractère spécial.'
+                                        }}
                                         onChange={(e) => setPassword(e.target.value)}
                                         required
                                         error={passwordError.isError}
@@ -156,6 +161,11 @@ const Register: React.FC = () => {
                                         type="password"
                                         variant="outlined"
                                         value={confirmPassword}
+                                        inputProps={{
+                                            pattern: '^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&])[A-Za-z\\d@$!%*?&]{8,}$',
+                                            title: 'Votre mot de passe doit contenir au moins 8 caractères ' +
+                                                'dont une majuscule, une minuscule, un chiffre et un caractère spécial.'
+                                        }}
                                         onChange={(e) => setConfirmPassword(e.target.value)}
                                         required
                                         error={passwordError.isError}
