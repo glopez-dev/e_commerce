@@ -99,7 +99,11 @@ class ProductController extends AbstractController
     #[Route(path: '/products', methods: ['GET'])]
     public function getAll(): JsonResponse
     {
-        $data = $this->productRepository->findBy(['sold' => false]);
+        if ($this->getUser() !== null) {
+            $data = $this->productRepository->findProductsExceptCurrentUser($this->getUser());
+        } else {
+            $data = $this->productRepository->findBy(['sold' => false]);
+        }
 
         return $this->json($data, Response::HTTP_OK, [], ['groups' => ['api']]);
     }

@@ -3,6 +3,7 @@
 namespace App\Repository;
 
 use App\Entity\Product;
+use App\Entity\User;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
@@ -19,5 +20,21 @@ class ProductRepository extends ServiceEntityRepository
     public function __construct(ManagerRegistry $registry)
     {
         parent::__construct($registry, Product::class);
+    }
+
+    public function findProductsExceptCurrentUser(User $user): array
+    {
+
+        $entityManager = $this->getEntityManager();
+
+        $query = $entityManager->createQuery(
+            'SELECT p
+            FROM App\Entity\Product p
+            WHERE p.user != :user
+            AND p.sold = false
+            '
+        )->setParameter('user', $user);
+
+        return $query->getResult();
     }
 }
