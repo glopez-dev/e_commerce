@@ -1,0 +1,243 @@
+.container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+}
+
+.box {
+    margin-top: 100px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    width: 60vw;
+}
+
+.title {
+    border-bottom: 2px solid #444;
+    width: 100%;
+}
+
+
+.orders {
+    display: grid;
+    grid-template-columns: repeat(1, 1fr);
+    grid-gap: 20px;
+    justify-content: flex-start;
+    margin-top: 20px;
+}
+
+/* --- ORDER CARD --- */
+
+.card {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    width: 245px;
+    height: 150px;
+    padding: 10px;
+    background: #fff;
+    border-radius: 4px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    align-items: start;
+    transition: transform .2s;
+}
+.card:hover {
+    transform: scale(1.02);
+    cursor: pointer;
+}
+.cardTitle {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+}
+.cardTitle > p {
+    color: #000000;
+    font-size: 22px;
+    font-weight: 600;
+    text-decoration: underline;
+}
+
+.cardDate > p {
+    color: rgba(0,0,0, 0.4);
+    font-size: 16px;
+}
+
+.cardBody {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    gap: 10px;
+}
+.recap {
+    width: 100%;
+    font-size: 18px;
+}
+
+.product {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+}
+
+.totalPrice {
+    align-self: end;
+}
+
+.productImg {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+.img {
+    aspect-ratio: 1/1;
+    width: 25px;
+}
+
+@media (min-width: 1024px) {
+    .orders {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (min-width: 1200px) {
+    .orders {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+@media (min-width: 1700px) {
+    .orders {
+        grid-template-columns: repeat(4, 1fr);
+    }
+}
+
+/* --- MODAL --- */
+
+.modalContainer {
+    display: flex;
+    justify-content: center;
+    align-items: center;    position: absolute;
+    z-index: 2000;
+    left: 0;
+    top: 0;
+    width: 100vw;
+    height: 100vh;
+    overflow: auto;
+    background-color: rgba(0,0,0, 0.4);
+}
+
+.closeBtnDiv {
+    display: flex;
+    justify-content: flex-end;
+    width: 100%;
+}
+.closeBtn {
+    cursor: pointer;
+    align-self: end;
+}
+.modalCard {
+    display: flex;
+    flex-direction: column;
+    width: 350px;
+    height: 600px;
+    padding: 10px;
+    background: #fff;
+    border-radius: 4px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+.modalCardHeader {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    width: 100%;
+}
+
+.modalCardHeaderTitle {
+    color: #444;
+    font-size: 26px;
+    font-weight: 600;
+}
+
+.modalCardBody {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    width: 100%;
+}
+
+.modalCardBodyDetails {
+    color: #444;
+    font-size: 18px;
+    font-weight: 500;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.modalCardBodyContent {
+    border-bottom: 1px solid #000;
+    border-top: 1px solid #000;
+    padding-bottom: 15px;
+    padding-top: 15px;
+    height: 300px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    overflow: hidden;
+    overflow-y: auto;
+}
+
+.modalProduct {
+    display: flex;
+    flex-direction: row;
+    gap: 10px;
+    width: 100%;
+}
+
+.modalProductImage {
+    aspect-ratio: 1/1;
+    width: 64px;
+}
+
+.modalProductName {
+    color: #444;
+    font-size: 20px;
+    font-weight: 600;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    width: 100%;
+}
+.modalProductInfo {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    padding: 5px;
+}
+.modalProductQty {
+    color: #444;
+    font-size: 16px;
+    font-weight: 500;
+}
+
+.modalCardBodyTotal {
+    display: flex;
+    flex-direction: row;
+    padding-right: 5px;
+    justify-content: space-between;
+    color: #444;
+    font-size: 20px;
+    font-weight: 600;
+}

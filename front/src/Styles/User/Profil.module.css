@@ -1,0 +1,87 @@
+.container {
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.main {
+    width: 40vw;
+    height: 60vh;
+    display: flex;
+    flex-direction: column;
+    align-items: start;
+}
+
+.title {
+    border-bottom: 2px solid #444;
+    width: 100%;
+}
+
+
+
+/*FORM PART */
+
+.profil {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    width: 100%;
+    height: 100%;
+}
+
+.form {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    width: 100%;
+    height: 100%;
+    align-items: center;
+    justify-content: center;
+}
+.formGroup {
+    display: flex;
+    gap: 20px;
+    flex-direction: column;
+}
+
+.inputGroup {
+    display: flex;
+    gap: 20px;
+}
+
+.input {
+    background: rgba(255, 255, 255, 0.7);
+}
+.btnGroup {
+    display: flex;
+    flex-direction: column;
+    margin: 10px 0;
+    align-items: center;
+    gap: 10px;
+    width: 50%;
+}
+
+.btn {
+    width: 50% !important;
+    font-size: 14px !important;
+    color: white !important;
+    background: #444 !important;
+    text-align: center;
+    border-radius: 4px !important;
+}
+
+@media (max-width: 768px) {
+
+    .main {
+        width: 70vw;
+    }
+    .profil {
+        margin-top: 20px;
+    }
+    .inputGroup {
+        flex-direction: column;
+    }
+}

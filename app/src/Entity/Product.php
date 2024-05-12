@@ -37,7 +37,7 @@ class Product
     #[ORM\JoinColumn(nullable: false)]
     private ?User $user = null;
 
-    #[ORM\ManyToOne(inversedBy: 'products')]
+    #[ORM\ManyToOne(cascade: ['persist'], inversedBy: 'products')]
     private ?Order $order = null;
 
     /**
@@ -62,6 +62,8 @@ class Product
             'name' => $this->getName(),
             'description' => $this->getDescription(),
             'photo' => $this->getPhoto(),
+            'price' => $this->getPrice(),
+            'sold' => $this->isSold(),
         ];
     }
 

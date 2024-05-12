@@ -30,3 +30,11 @@ JWT
 cd app
 php bin/console lexik:jwt:generate-keypair
 ```
+
+### Production
+
+```
+cd front && npm run build
+docker compose up
+```
+

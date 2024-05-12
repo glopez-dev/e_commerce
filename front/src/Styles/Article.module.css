@@ -73,13 +73,13 @@
 
 
 
-h1 {
+.title>h1 {
     font-size: 35px;
     margin: 0;
 
 }
 
-p {
+.title>p {
     font-size: 20px;
 }
 

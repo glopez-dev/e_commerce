@@ -7,13 +7,12 @@ import Typography from '@mui/material/Typography';
 import Menu from '@mui/material/Menu';
 import MenuIcon from '@mui/icons-material/Menu';
 import Container from '@mui/material/Container';
-import Avatar from '@mui/material/Avatar';
 import Button from '@mui/material/Button';
 import Tooltip from '@mui/material/Tooltip';
 import MenuItem from '@mui/material/MenuItem';
 import AdbIcon from '@mui/icons-material/Adb';
 import PersonIcon from '@mui/icons-material/Person';
-import { Link } from 'react-router-dom';
+import {Link} from 'react-router-dom';
 import { useAuth } from './Authentication/AuthProvider';
 import HemHess from '../assets/HemHess.png';
 
@@ -33,7 +32,6 @@ function ResponsiveAppBar() {
             try {
                 const token = getToken();
 
-
                 setUserToken(token);
             } catch (error) {
                 console.error('Erreur lors de la récupération du jeton:', error);
@@ -51,7 +49,6 @@ function ResponsiveAppBar() {
         onLogout();
         setUserToken(null);
         window.location.reload();
-
     }
 
     const handleOpenNavMenu = (event: React.MouseEvent<HTMLElement>) => {
@@ -93,9 +90,13 @@ function ResponsiveAppBar() {
                         <Link to="/" style={{ color: 'black', textDecoration: 'none' }}>
                             <img src={HemHess} alt="logo" style={{ width: 50, height: 50, padding: 10 }} />
                         </Link>
+
                     </Typography>
 
-                    <Box sx={{ flexGrow: 1, display: { xs: 'flex', md: 'none' } }}>
+
+
+                    <Box sx={{ flexGrow: 1, display: { xs: 'flex', md: 'none', justifyContent: 'space-between' } }}>
+
                         <IconButton
                             size="large"
                             aria-label="account of current user"
@@ -106,6 +107,7 @@ function ResponsiveAppBar() {
                         >
                             <MenuIcon />
                         </IconButton>
+
                         <Menu
                             id="menu-appbar"
                             anchorEl={anchorElNav}
@@ -125,13 +127,19 @@ function ResponsiveAppBar() {
                             }}
                         >
                             <MenuItem onClick={handleCloseNavMenu}>
-                                <Link to="/Panier" style={{ textDecoration: 'none', color: 'black' }}>
-                                    <Typography textAlign="center">Panier</Typography>
-                                </Link>
+
+
+
                             </MenuItem>
 
                         </Menu>
+
+                        <Link to="/" style={{ color: 'black', textDecoration: 'none' }}>
+                            <img src={HemHess} alt="logo" style={{ width: 50, height: 50, padding: 10, }} />
+                        </Link>
                     </Box>
+
+
 
                     <Box sx={{ flexGrow: 1, display: { xs: 'none', md: 'flex' } }}>
                         <Link to="/Panier" style={{ textDecoration: 'none', color: 'black' }}>
@@ -166,32 +174,43 @@ function ResponsiveAppBar() {
                                 onClose={handleCloseUserMenu}
                             >
 
-
                                 <MenuItem onClick={handleCloseUserMenu}>
-                                    <Typography textAlign="center">Profil</Typography>
+                                    <Link to="/user/profil" style={{ textDecoration: 'none', color: 'black', width: '100%' }}>
+                                        <Typography>Profil</Typography>
+                                    </Link>
+                                </MenuItem>
+                                <MenuItem onClick={handleCloseUserMenu}>
+                                    <Link to="/user/products" style={{ textDecoration: 'none', color: 'black',  width: '100%'}}>
+                                        <Typography>Mes produits</Typography>
+                                    </Link>
+                                </MenuItem>
+                                <MenuItem onClick={handleCloseUserMenu}>
+                                    <Link to="/user/orders" style={{ textDecoration: 'none', color: 'black', width: '100%' }}>
+                                        <Typography textAlign="center">Mes Commandes</Typography>
+                                    </Link>
                                 </MenuItem>
                                 <MenuItem onClick={handleCloseNavMenu}>
-                                    <Link to="/AddArticle" style={{ textDecoration: 'none', color: 'black' }}>
+                                    <Link to="/AddArticle" style={{ textDecoration: 'none', color: 'black', width: '100%' }}>
                                         <Typography textAlign="center">Ajouter un article</Typography>
                                     </Link>
                                 </MenuItem>
                                 <MenuItem onClick={handleCloseUserMenu}>
                                     <Typography onClick={handleLogout} textAlign="center">Déconnexion</Typography>
                                 </MenuItem>
-
-
                             </Menu>
                         </Box>
                     ) : (
                         <Box sx={{ flexGrow: 0 }}>
                             <Link to="/login" style={{ textDecoration: 'none', color: 'black' }}>
-                                <Button>Se connecter</Button>
+                                <Button sx={{ my: 2, color: 'black', display: 'flex' }}>Se connecter</Button>
+
                             </Link>
                         </Box>
                     )}
                 </Toolbar>
             </Container>
-        </AppBar>
+        </AppBar >
+
     );
 }
 
