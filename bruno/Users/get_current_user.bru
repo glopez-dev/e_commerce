@@ -1,0 +1,15 @@
+meta {
+  name: get_current_user
+  type: http
+  seq: 3
+}
+
+get {
+  url: http://127.0.0.1:8000/api/users
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJpYXQiOjE3MTUwMTg4NTEsImV4cCI6MTcxNTEwNTI1MSwidXNlcm5hbWUiOiJnYWJyaWVsIiwiaWQiOjcsImVtYWlsIjoiZ2FicmllbEBoZXJtaGVzcy5jb20ifQ.TbyjS_jcAjTyahQRbQzwCHtFAOdsHgX09Wbd4EEeClbIdFaljvx9cdpm3SxvkY-NHSXMJppwzsl5L_nSShMaLqSO3CO2ljpeSHFKfjl9wtib_C3tgDLDNY5M4PgczA4VPgQNLHSw4vzPPvk-ZBPF_HN-tsL--sm2u_kDdJKj4BAM922OrKP4Gof6A25kB0bLqPFUNyqEr1Ub1E4gu1YmiD03xY0dKvSLFOYEb0ZHV_8nOZj4WCRYd56k7L-PPtZXKu7V8oyOeLyuGu6AVi6ItA1JR_NWHCF027boX7LP7_Tn0NOvxmnF6YZzRqt1gsAsXLZSdziNrQdtYeNsfjq0Bw
+}

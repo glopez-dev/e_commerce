@@ -1,0 +1,9 @@
+{
+  "version": "1",
+  "name": "T-WEB-600",
+  "type": "collection",
+  "ignore": [
+    "node_modules",
+    ".git"
+  ]
+}

@@ -55,7 +55,7 @@ class CartController extends AbstractController
 
 
     #[IsGranted('IS_AUTHENTICATED')]
-    #[Route('/{productId}', methods: ['POST'])]
+    #[Route('/{productId}', name: 'add_product', methods: ['POST'])]
     public function addProduct(Request $request): JsonResponse
     {
         $productId = $request->get('productId');
@@ -95,7 +95,7 @@ class CartController extends AbstractController
 
 
     #[IsGranted('IS_AUTHENTICATED')]
-    #[Route('/{productId}',  methods: ['DELETE'])]
+    #[Route('/{productId}', name: 'remove_product', methods: ['DELETE'])]
     public function removeProduct(Request $request, EntityManagerInterface $em): JsonResponse
     {
         $productId = $request->get('productId');
@@ -128,13 +128,25 @@ class CartController extends AbstractController
         return $this->json($normalized_cart, Response::HTTP_OK);
     }
 
+    private function getCartedItems(): array
+    {
+        $user = $this->getUser();
+
+        $carted_items = $this->cartRepository->findBy(['_user' => $user]);
+
+        if (count($carted_items) == 0) {
+            return [];
+        }
+
+        return array_map(fn (Cart $carted_item) => $carted_item->getProduct(), $carted_items);
+    }
+
     #[IsGranted('IS_AUTHENTICATED')]
-    #[Route('/validate', methods: ['PUT'])]
+    #[Route('/validate', name: 'validate', methods: ['PUT'])]
     public function createOrder(): JsonResponse
     {
         $user = $this->getUser();
-        $carted_items = $this->cartRepository->findBy(['_user' => $user]);
-        $products = array_map(fn (Cart $carted_item) => $carted_item->getProduct(), $carted_items);
+        $products = $this->getCartedItems();
 
         if (count($products) == 0) {
             $error = ['error' => "Cart is empty"];

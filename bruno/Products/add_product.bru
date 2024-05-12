@@ -1,0 +1,20 @@
+meta {
+  name: add_product
+  type: http
+  seq: 3
+}
+
+post {
+  url: http://127.0.0.1:8000/api/products
+  body: json
+  auth: bearer
+}
+
+body:json {
+  {
+      "name": "Test3",
+      "description": "Nice sweat for when it's warm",
+      "photo": "https://www.beige-habilleur.com/6980/camber-sweatshirt-col-rond-rouge.jpg",
+      "price": 101.50
+  }
+}

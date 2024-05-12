@@ -1,0 +1,15 @@
+meta {
+  name: checkout
+  type: http
+  seq: 1
+}
+
+post {
+  url: http://localhost:8000/api/carts/checkout
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJpYXQiOjE3MTUwMTQ3NTQsImV4cCI6MTcxNTEwMTE1NCwidXNlcm5hbWUiOiJnYWJyaWVsIiwiaWQiOjcsImVtYWlsIjoiZ2FicmllbEBoZXJtaGVzcy5jb20ifQ.CIjbzJVkZuclBhV5aeHfXE_xbMRDlQyKgQ6zV4HTEiJX7ZsOFm_0OUlDS1kP9QrL-vrz7hwXjxHcjSERJMHJ82QxPzRjM0xfDLg6qXxaa919cTcSSEkLi87FQsnZFGb6QrFq7j3Xiroe8NPy8dX8P0DxYq_PVDnuzaiXYZ3ymUuFHtH2OfV-LAJmBOIJA9tjVnDvRLuDfg3SVbz2qE_BsHzntwf51fR8sCfYLtEK0jJKsOsAbAFr32alquCC9pkX8RtD5ObCd0SOegRKg9uFr7gKnIxIRG9L6TKX6eeOQhLPW0jvdlgB-YhAZ46WcwHMMSms-GztVFq9y610duqZyA
+}

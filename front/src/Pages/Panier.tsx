@@ -4,6 +4,7 @@ import axios, { AxiosResponse } from 'axios';
 import ArticlePanier from '../Components/ArticlePanier';
 import Button from '@mui/material/Button';
 import { useAuth } from '../Components/Authentication/AuthProvider';
+import { redirect } from "react-router-dom";
 import { Link } from 'react-router-dom';
 import DeleteIcon from '@mui/icons-material/Delete';
 
@@ -40,16 +41,12 @@ const Paniers: React.FC = () => {
 
     useEffect(() => {
         const fetchData = async () => {
+
             const token = getToken();
 
             if (token) {
-                const config = {
-                    headers: {
-                        'Authorization': `Bearer ${token}`
-                    }
-                };
-
                 try {
+                    const config = { headers: { 'Authorization': `Bearer ${token}` } };
                     const response: AxiosResponse<Article[]> = await axios.get('http://127.0.0.1:8000/api/carts', config);
                     setArticles(response.data);
                 } catch (error) {
@@ -60,6 +57,27 @@ const Paniers: React.FC = () => {
 
         fetchData();
     }, [getToken]);
+
+
+    const checkout = async () => {
+
+        const token = getToken();
+        console.log("In checkout with token : " + token);
+        if (token) {
+            try {
+                const config = { headers: { 'Authorization': `Bearer ${token}` } };
+                await axios.put('http://127.0.0.1:8000/api/carts/validate', null, config);
+                const response: AxiosResponse = await axios.get('http://127.0.0.1:8000/api/stripe/checkout', config);
+
+                console.log("Response : " + response.data.url);
+                window.location.href = response.data.url
+
+            } catch (error) {
+                console.error("Erreur lors du traitement de la commande :", error);
+            }
+        }
+    }
+
 
     return (
         <div className={Style.containers}>
