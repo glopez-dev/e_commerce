@@ -64,6 +64,7 @@ class Product
             'photo' => $this->getPhoto(),
             'price' => $this->getPrice(),
             'sold' => $this->isSold(),
+            'seller' => $this->getSeller()->getLogin(),
         ];
     }
 

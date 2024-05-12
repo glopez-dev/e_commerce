@@ -26,10 +26,11 @@
 .boxRight {
     display: flex;
     width: 30%;
+    height: fit-content;
     background-color: #fffcf7;
     flex-direction: column;
     gap: 20px;
-    padding: 5px;
+    padding: 10px;
     margin-top: 15px;
 }
 

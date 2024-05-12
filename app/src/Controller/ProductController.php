@@ -107,7 +107,7 @@ class ProductController extends AbstractController
     #[Route('/products/{id}', methods: ['GET'])]
     public function get(Product $product): JsonResponse
     {
-        return $this->json($product, Response::HTTP_OK, [], ['groups' => ['api']]);
+        return $this->json($product->toArray(), Response::HTTP_OK, [], ['groups' => ['api']]);
     }
 
     #[IsGranted('IS_AUTHENTICATED')]
