@@ -11,6 +11,7 @@ import MyOrders from "./Pages/Order/MyOrders";
 import Profil from "./Pages/User/Profil";
 import MyProduct from "./Pages/User/MyProduct";
 import Detail from './Pages/Detail';
+import SuccessOrder from "./Pages/Order/SuccessOrder";
 
 /**
  * Renders the main application component.
@@ -55,6 +56,11 @@ function App(): JSX.Element {
                         <Route path="/user/profil" element={
                             <ProtectedRoute>
                                 <Profil />
+                            </ProtectedRoute>
+                        } />
+                        <Route path="/order/success" element={
+                            <ProtectedRoute>
+                                <SuccessOrder />
                             </ProtectedRoute>
                         } />
                     </Routes>

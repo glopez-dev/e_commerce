@@ -1,0 +1,77 @@
+.container {
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.card {
+    background-color: #fffcf7;
+    width: 50vw;
+    height: 40vh;
+    margin-top: 40px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    border-radius: 10px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+}
+
+.cardHeader {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    gap: 10px;
+}
+
+.separator {
+    display: block;
+    width: 150px;
+    height: 2px;
+    background-color: #b27542;
+    align-self: center;
+    margin: 20px 0;
+}
+
+
+.cardHeaderLogo {
+    align-self: start;
+}
+.cardHeaderTitle > p {
+    font-size: 20px;
+    font-weight: 600;
+    text-transform: uppercase;
+    text-align: center;
+}
+
+.cardBody {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    width: 70%;
+}
+.cardBodyText {
+    text-align: center;
+}
+
+.btn {
+    font-size: 14px !important;
+    color: white !important;
+    background: #444 !important;
+    text-align: center;
+    border-radius: 4px !important;
+}
+
+@media (max-width: 768px) {
+    .card {
+        width: 80vw;
+        height: 60vh;
+    }
+}

@@ -14,7 +14,7 @@ import AdbIcon from '@mui/icons-material/Adb';
 import PersonIcon from '@mui/icons-material/Person';
 import {Link} from 'react-router-dom';
 import { useAuth } from './Authentication/AuthProvider';
-import HemHess from '../assets/HemHess.png';
+import HemHess from '../assets/logo-sans-titre.png';
 
 
 const settings = ['Profile', 'Account', 'Dashboard', 'Logout'];
