@@ -108,7 +108,7 @@ class StripeController extends AbstractController
         try {
             $session = \Stripe\Checkout\Session::create($sessionParams);
         } catch (\Throwable $e) {
-            throw new RuntimeException('Stripe checkout session creation failed: ' . ${$e->getMessage()}, 0, $e);
+            throw new RuntimeException('Stripe checkout session creation failed: ' . $e->getMessage(), 0, $e);
         }
 
         return $this->json(['url' => $session->url], Response::HTTP_OK);
@@ -177,7 +177,7 @@ class StripeController extends AbstractController
 
 
     #[Route("/hook", name: 'hook', methods: ['POST'])]
-    public function stripeHook(Response $request): JsonResponse
+    public function stripeHook(\Symfony\Component\HttpFoundation\Request $request): JsonResponse
     {
         $payload = $request->getContent();
 
@@ -186,8 +186,7 @@ class StripeController extends AbstractController
                 json_decode($payload, true)
             );
         } catch (\UnexpectedValueException $e) {
-            echo '⚠️  Webhook error while parsing basic request.';
-            return $this->json(['error' => $e->getMessage()], 400);
+            return $this->json(['error' => 'Webhook error while parsing request: ' . $e->getMessage()], 400);
         }
 
         $endpoint_secret = $_ENV['STRIPE_WEBHOOK_SECRET'] ?? null;
@@ -202,13 +201,14 @@ class StripeController extends AbstractController
                     $endpoint_secret
                 );
             } catch (\Stripe\Exception\SignatureVerificationException $e) {
-                echo '⚠️  Webhook error while validating signature.';
-                return $this->json(['error' => $e->getMessage()], 400);
+                return $this->json(['error' => 'Webhook signature verification failed: ' . $e->getMessage()], 400);
             }
         }
 
         if ($event->type === 'checkout.session.completed') {
-            echo '🔔  Webhook received!';
+            $this->createOrder();
         }
+
+        return $this->json(['status' => 'received'], Response::HTTP_OK);
     }
 }

@@ -6,6 +6,7 @@ import {Link} from 'react-router-dom';
 import axios from 'axios';
 import {useAuth} from "../Components/Authentication/AuthProvider";
 import {Alert} from "@mui/material";
+import {API_BASE_URL} from "../config";
 
 export type ErrorType = {
     isError: boolean,
@@ -57,7 +58,7 @@ const Register: React.FC = () => {
             return null;
         }
         try {
-            const response = await axios.post('http://localhost:8000/api/register', {
+            const response = await axios.post(`${API_BASE_URL}/api/register`, {
                 email,
                 password,
                 login,

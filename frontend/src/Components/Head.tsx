@@ -29,13 +29,8 @@ function ResponsiveAppBar() {
 
     useEffect(() => {
         const fetchToken = async () => {
-            try {
-                const token = getToken();
-
-                setUserToken(token);
-            } catch (error) {
-                console.error('Erreur lors de la récupération du jeton:', error);
-            }
+            const token = getToken();
+            setUserToken(token);
         };
 
 
@@ -142,7 +137,7 @@ function ResponsiveAppBar() {
 
 
                     <Box sx={{ flexGrow: 1, display: { xs: 'none', md: 'flex' } }}>
-                        <Link to="/Panier" style={{ textDecoration: 'none', color: 'black' }}>
+                        <Link to="/panier" style={{ textDecoration: 'none', color: 'black' }}>
                             <Button onClick={handleCloseNavMenu} sx={{ my: 2, color: 'black', display: 'flex' }}>
                                 Panier
                             </Button>
@@ -190,7 +185,7 @@ function ResponsiveAppBar() {
                                     </Link>
                                 </MenuItem>
                                 <MenuItem onClick={handleCloseNavMenu}>
-                                    <Link to="/AddArticle" style={{ textDecoration: 'none', color: 'black', width: '100%' }}>
+                                    <Link to="/addArticle" style={{ textDecoration: 'none', color: 'black', width: '100%' }}>
                                         <Typography textAlign="center">Ajouter un article</Typography>
                                     </Link>
                                 </MenuItem>

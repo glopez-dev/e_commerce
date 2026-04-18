@@ -3,6 +3,7 @@ import Style from '../../Styles/User/Profil.module.css';
 import {ErrorType} from "../../Pages/Register";
 import axios from "axios";
 import {useAuth} from "../Authentication/AuthProvider";
+import {API_BASE_URL} from "../../config";
 import {Alert} from "@mui/material";
 import TextField from "@mui/material/TextField";
 import {UserType} from "../../Pages/User/Profil";
@@ -58,7 +59,7 @@ export default function ProfilForm({user}: ProfilFormProps): React.JSX.Element {
     const handleEditUser = async (e: React.FormEvent) => {
         e.preventDefault();
         try {
-            const response = await axios.put('http://localhost:8000/api/users',
+            const response = await axios.put(`${API_BASE_URL}/api/users`,
                 {
                     login,
                     email,

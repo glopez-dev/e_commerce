@@ -7,6 +7,7 @@ import { CardActionArea } from '@mui/material';
 import Button from '@mui/material/Button';
 import axios from 'axios';
 import { useAuth } from './Authentication/AuthProvider';
+import {API_BASE_URL} from "../config";
 import { Link } from 'react-router-dom';
 
 
@@ -36,15 +37,8 @@ const ActionAreaCard: React.FC<ActionAreaCardProps> = ({ image, title, price, de
                 }
             };
 
-            axios.post(`http://127.0.0.1:8000/api/carts/${id}`, null, config)
-                .then(response => {
-                    console.log('Article ajouté au panier avec succès !');
-                })
-                .catch(error => {
-                    console.error('Erreur lors de l\'ajout au panier :', error);
-                });
-        } else {
-            console.error('Token d\'authentification introuvable.');
+            axios.post(`${API_BASE_URL}/api/carts/${id}`, null, config)
+                .catch(() => {});
         }
     };
     return (

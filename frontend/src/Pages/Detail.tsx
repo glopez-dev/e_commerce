@@ -3,6 +3,7 @@ import {useNavigate, useParams} from "react-router-dom";
 import axios from 'axios';
 import Styles from '../Styles/Detaille.module.css';
 import {useAuth} from "../Components/Authentication/AuthProvider";
+import {API_BASE_URL} from "../config";
 import Button from "@mui/material/Button";
 
 interface Product {
@@ -21,7 +22,7 @@ const Detail = () => {
     const decodedToken = authProvider.getDecodedToken();
     const navigate = useNavigate();
     useEffect(() => {
-        axios.get(`http://127.0.0.1:8000/api/products/${id}`)
+        axios.get(`${API_BASE_URL}/api/products/${id}`)
             .then(response => {
                 const data = response.data as Product;
                 setProduct(data);
@@ -36,15 +37,13 @@ const Detail = () => {
     }
 
     const handleDelete = async () => {
-        const response = await axios.delete(`http://127.0.0.1:8000/api/products/${id}`, {
+        const response = await axios.delete(`${API_BASE_URL}/api/products/${id}`, {
             headers: {
                 Authorization: `Bearer ${authProvider.getToken()}`,
             },
         });
         if (response.status === 202) {
            navigate('/')
-        } else {
-            console.error('Une erreur s\'est produite : ', response);
         }
     }
 

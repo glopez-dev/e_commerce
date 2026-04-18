@@ -6,6 +6,7 @@ import { Link } from 'react-router-dom';
 import axios from 'axios';
 import {useAuth} from "../Components/Authentication/AuthProvider";
 import {Alert} from "@mui/material";
+import {API_BASE_URL} from "../config";
 
 type Error = {
     isError: boolean,
@@ -26,7 +27,7 @@ const Login: React.FC = () => {
     const handleLogin = async (e: React.FormEvent) => {
         e.preventDefault();
         try {
-            const response = await axios.post('http://localhost:8000/api/login', { login, password });
+            const response = await axios.post(`${API_BASE_URL}/api/login`, { login, password });
             const data = response.data;
             if (response.status === 200) {
                 authProvider.onLogin(data.token);

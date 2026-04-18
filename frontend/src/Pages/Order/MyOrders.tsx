@@ -2,6 +2,7 @@ import React, {useEffect, useState} from 'react';
 import Style from '../../Styles/Order/MyOrder.module.css';
 import axios from "axios";
 import {useAuth} from "../../Components/Authentication/AuthProvider";
+import {API_BASE_URL} from "../../config";
 import OrderCard from "../../Components/Order/OrderCard";
 import {Product} from "../User/MyProduct";
 
@@ -18,7 +19,7 @@ export default function MyOrders(): React.JSX.Element {
 
     useEffect(() => {
         const fetchOrders = async () => {
-            const response = await axios.get('http://127.0.0.1:8000/api/orders', {
+            const response = await axios.get(`${API_BASE_URL}/api/orders`, {
                 headers: {
                     Authorization: `Bearer ${authProvider.getToken()}`,
                 },

@@ -4,6 +4,7 @@ import axios from 'axios';
 import Style from '../Styles/Article.module.css';
 import Card from './Card';
 import {useAuth} from "./Authentication/AuthProvider";
+import {API_BASE_URL} from "../config";
 
 interface Article {
     name: string;
@@ -28,9 +29,8 @@ const Article = () => {
                         },
                     }
                 }
-                const response = await axios.get('http://127.0.0.1:8000/api/products', config);
+                const response = await axios.get(`${API_BASE_URL}/api/products`, config);
                 setArticles(response.data);
-                console.log(response.data);
             } catch (error) {
                 console.error('Error fetching data:', error);
             }

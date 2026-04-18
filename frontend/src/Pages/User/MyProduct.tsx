@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useAuth } from "../../Components/Authentication/AuthProvider";
 import axios from "axios";
+import {API_BASE_URL} from "../../config";
 import Style from '../../Styles/User/MyProduct.module.css';
 import ActionAreaCard from "../../Components/Card";
 import { IconButton, Menu, MenuItem } from "@mui/material";
@@ -51,7 +52,7 @@ export default function MyProduct(): React.JSX.Element {
         const fetchData = async () => {
             try {
                 if (authProvider.getDecodedToken() !== null) {
-                    const response = await axios.get(`http://127.0.0.1:8000/api/products/user/${authProvider.getDecodedToken()?.username}`, {
+                    const response = await axios.get(`${API_BASE_URL}/api/products/user/${authProvider.getDecodedToken()?.username}`, {
                         headers: {
                             Authorization: `Bearer ${authProvider.getToken()}`,
                         },

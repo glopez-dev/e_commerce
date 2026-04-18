@@ -1,5 +1,6 @@
 import React, {useEffect} from 'react';
 import axios from "axios";
+import {API_BASE_URL} from "../../config";
 import Style from '../../Styles/User/Profil.module.css';
 import {useAuth} from "../../Components/Authentication/AuthProvider";
 import ProfilForm from "../../Components/User/ProfilForm";
@@ -20,7 +21,7 @@ export default function Profil(): React.JSX.Element {
     useEffect(() => {
         const fetchUser = async () => {
             try {
-                const response = await axios.get('http://127.0.0.1:8000/api/users', {
+                const response = await axios.get(`${API_BASE_URL}/api/users`, {
                     headers: {
                         Authorization: `Bearer ${authProvider.getToken()}`,
                     },

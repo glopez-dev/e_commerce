@@ -4,6 +4,7 @@ import TextField from '@mui/material/TextField';
 import Button from '@mui/material/Button';
 import axios from 'axios';
 import {useAuth} from "../Components/Authentication/AuthProvider";
+import {API_BASE_URL} from "../config";
 
 interface Article {
     name: string;
@@ -28,16 +29,13 @@ const AddArticle: React.FC = () => {
     const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault();
         try {
-            const response = await axios.post('http://127.0.0.1:8000/api/products', formData,
+            const response = await axios.post(`${API_BASE_URL}/api/products`, formData,
                 {
                     headers: {
                         Authorization: `Bearer ${authProvider.getToken()}`,
                     },
                 });
-            console.log('Response:', response);
-            console.log('Article ajouté avec succès !');
         } catch (error) {
-            console.error('Erreur lors de l\'ajout de l\'article :', error);
         }
     };
 
