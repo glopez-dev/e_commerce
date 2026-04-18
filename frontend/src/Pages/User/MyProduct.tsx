@@ -36,14 +36,17 @@ export default function MyProduct(): React.JSX.Element {
     };
     const handleClickFilter = (event: React.MouseEvent<HTMLElement>, index: number) => {
         handleClose();
+        if (!filteredProducts) return;
+        const sorted = [...filteredProducts];
         switch (index) {
             case 0:
-                filteredProducts?.sort((a, b) => a.price - b.price);
+                sorted.sort((a, b) => a.price - b.price);
                 break;
             case 1:
-                filteredProducts?.sort((a, b) => b.price - a.price);
+                sorted.sort((a, b) => b.price - a.price);
                 break;
         }
+        setFilteredProducts(sorted);
     }
     const handleClose = () => {
         setAnchorEl(null);

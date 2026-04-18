@@ -101,7 +101,7 @@ const Paniers: React.FC = () => {
                         <div className={Style.title}>
                             <p>Vous voulez acheter les {articles.length} </p>
                         </div>
-                        <Button style={{ color: 'black', borderTop: '1px solid black', width: '100%', }} variant="text">Acheter</Button>
+                        <Button style={{ color: 'black', borderTop: '1px solid black', width: '100%', }} variant="text" onClick={checkout}>Acheter</Button>
                     </div>
                 </div>
             </div>
