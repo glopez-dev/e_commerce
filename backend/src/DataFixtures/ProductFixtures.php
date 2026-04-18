@@ -19,14 +19,21 @@ class ProductFixtures extends Fixture implements OrderedFixtureInterface
     public function load(ObjectManager $manager): void
     {
         $images = [
-            "T-Shirt" => "https://images.squarespace-cdn.com/content/v1/652fe361de902847ef91c566/1708699092638-XEPQNM0TE4GX98E586TD/FRONT+PCM+BLANC+ET+BLEU.png",
-            "Jeans" => "https://img.abercrombie.com/is/image/anf/KIC_155-3577-0040-278_prod1.jpg?policy=product-extra-large",
-            "Sweatshirt" => "https://www.beige-habilleur.com/6980/camber-sweatshirt-col-rond-rouge.jpg",
-            "Shoes" => "https://images.timberland.com/is/image/TimberlandEU/12909713-alt3?wid=720&hei=720&fit=constrain,1&qlt=85,1&op_usm=1,1,6,0"
+            "NVIDIA RTX 4090" => "https://assets.nvidia.partners/images/png/nvidia-geforce-rtx-4090.png",
+            "Corsair Vengeance DDR5 32Go" => "https://www.corsair.com/medias/sys_master/images/images/h93/h2a/64018927616030/CMK32GX5M2B5600C36/Gallery/CMK32GX5M2B5600C36_01/-CMK32GX5M2B5600C36-Gallery-CMK32GX5M2B5600C36-01.png_515Wx515H",
+            "Samsung 990 Pro 2To SSD" => "https://image-us.samsung.com/SamsungUS/home/computing/memory-storage/internal-ssds/01132023/MZ-V9P2T0B_001_Front_Black.jpg",
+            "AMD Ryzen 9 7950X" => "https://www.amd.com/content/dam/amd/en/images/products/processors/ryzen/2505503-ryzen9-702x702.png",
         ];
 
         $users = $manager->getRepository(User::class)->findAll();
 
+
+        $descriptions = [
+            "NVIDIA RTX 4090" => "Carte graphique haut de gamme avec 24Go GDDR6X, architecture Ada Lovelace",
+            "Corsair Vengeance DDR5 32Go" => "Kit memoire DDR5 haute performance 5600MHz, dissipateur aluminium",
+            "Samsung 990 Pro 2To SSD" => "SSD NVMe M.2 PCIe 4.0, lecture 7450 Mo/s, ecriture 6900 Mo/s",
+            "AMD Ryzen 9 7950X" => "Processeur 16 coeurs 32 threads, 5.7GHz boost, socket AM5",
+        ];
 
         for ($i = 0; $i < 20; $i++) {
             $product = new Product();
@@ -37,8 +44,8 @@ class ProductFixtures extends Fixture implements OrderedFixtureInterface
 
             $product->setName($rand);
             $product->setPhoto($images[$rand]);
-            $product->setDescription($rand);
-            $product->setPrice(random_int(50, 200));
+            $product->setDescription($descriptions[$rand]);
+            $product->setPrice(random_int(50, 2000));
             $manager->persist($product);
         }
         $manager->flush();
