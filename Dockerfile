@@ -8,14 +8,18 @@ ENV USERNAME=www-data
 ENV APP_ENV prod
 
 # Install all the dependencies and enable PHP modules
-RUN apt-get update && apt-get upgrade -y && apt-get install -y \ 
+RUN apt-get update && apt-get upgrade -y && apt-get install -y \
+    git \
+    unzip \
     libpq-dev \
+    postgresql-client \
+    make \
     && docker-php-ext-configure pgsql \
     && docker-php-ext-install pgsql pdo_pgsql \
     && rm -rf /tmp/* \
     && rm -rf /var/list/apt/* \
     && rm -rf /var/lib/apt/lists/* \
-    && apt-get clean 
+    && apt-get clean
 
 # create document root, fix permissions for www-data user and change owner to www-data
 RUN mkdir -p $APP_HOME/public && \
@@ -35,7 +39,10 @@ WORKDIR $APP_HOME
 USER ${USERNAME}
 
 # copy source files
-COPY --chown=${USERNAME}:${USERNAME} ./app $APP_HOME/
+COPY --chown=${USERNAME}:${USERNAME} ./backend $APP_HOME/
+
+# ensure .env exists for Symfony (needed at composer install time)
+RUN cp -n $APP_HOME/.env.prod $APP_HOME/.env 2>/dev/null || true
 
 # install all PHP dependencies
 RUN if [ "$BUILD_ARGUMENT_ENV" = "prod" ]; then export APP_ENV=$BUILD_ARGUMENT_ENV && COMPOSER_MEMORY_LIMIT=-1 composer install --optimize-autoloader --no-interaction --no-progress --no-dev; \
@@ -47,3 +54,11 @@ RUN if [ "$BUILD_ARGUMENT_ENV" = "prod" ]; then composer dump-env $BUILD_ARGUMEN
 
 USER root
 
+# copy entrypoint script
+COPY docker/php/entrypoint.sh /usr/local/bin/entrypoint.sh
+RUN chmod +x /usr/local/bin/entrypoint.sh
+
+# ensure www-data can write JWT keys at runtime
+RUN mkdir -p $APP_HOME/config/jwt && chown -R ${USERNAME}:${USERNAME} $APP_HOME/config/jwt
+
+ENTRYPOINT ["entrypoint.sh"]
