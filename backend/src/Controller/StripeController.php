@@ -2,13 +2,9 @@
 
 namespace App\Controller;
 
-use App\Entity\Cart;
-use App\Entity\Order;
 use App\Entity\Product;
 use App\Repository\CartRepository;
-use App\Repository\ProductRepository;
-use Doctrine\ORM\EntityManagerInterface;
-use Exception;
+use App\Service\OrderService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -19,11 +15,9 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 #[Route('/api/stripe')]
 class StripeController extends AbstractController
 {
-
     public function __construct(
-        private EntityManagerInterface $entityManager,
-        private ProductRepository $productRepository,
-        private CartRepository $cartRepository
+        private CartRepository $cartRepository,
+        private OrderService $orderService,
     ) {
     }
 
@@ -119,41 +113,16 @@ class StripeController extends AbstractController
         }
 
         if ($event->type === 'checkout.session.completed') {
-            $this->handleCheckoutCompleted();
+            $user = $this->getUser();
+            if ($user) {
+                try {
+                    $this->orderService->createOrderFromCart($user);
+                } catch (\LogicException) {
+                    // Cart already empty, order may have been created via /carts/validate
+                }
+            }
         }
 
         return $this->json(['status' => 'received'], Response::HTTP_OK);
-    }
-
-    private function handleCheckoutCompleted(): void
-    {
-        $user = $this->getUser();
-        if (!$user) {
-            return;
-        }
-
-        $cartItems = $this->cartRepository->findByUser($user);
-        if (empty($cartItems)) {
-            return;
-        }
-
-        $products = array_map(fn (Cart $item) => $item->getProduct(), $cartItems);
-        $order = new Order($user, $products);
-
-        /** @disregard P1013 */
-        $user->addOrder($order);
-
-        foreach ($products as $product) {
-            $product->setSold(true);
-            $this->entityManager->persist($product);
-        }
-
-        foreach ($cartItems as $item) {
-            $this->entityManager->remove($item);
-        }
-
-        $this->entityManager->persist($order);
-        $this->entityManager->persist($user);
-        $this->entityManager->flush();
     }
 }
