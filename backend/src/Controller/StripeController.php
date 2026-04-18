@@ -2,19 +2,19 @@
 
 namespace App\Controller;
 
-use App\Repository\CartRepository;
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\Attribute\Route;
 use App\Entity\Cart;
 use App\Entity\Order;
 use App\Entity\Product;
-use Symfony\Component\Console\Exception\RuntimeException;
-use Symfony\Component\Security\Http\Attribute\IsGranted;
-use Symfony\Component\HttpFoundation\JsonResponse;
+use App\Repository\CartRepository;
 use App\Repository\ProductRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Exception;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 #[Route('/api/stripe')]
 class StripeController extends AbstractController
@@ -27,34 +27,13 @@ class StripeController extends AbstractController
     ) {
     }
 
-    private function getCartedItems(): array
+    private function getStripeLineItems(array $products): array
     {
-        $user = $this->getUser();
-
-        $carted_items = $this->cartRepository->findBy(['_user' => $user]);
-
-        if (count($carted_items) == 0) {
-            return [];
-        }
-
-        return array_map(fn (Cart $carted_item) => $carted_item->getProduct(), $carted_items);
-    }
-
-    private function getStripeLineItems(): array
-    {
-        $products = $this->getCartedItems();
-
-        if (count($products) == 0) {
-            return [];
-        }
-
         return array_map(
             fn (Product $product) => [
-                # Create inline Price object
                 'quantity' => 1,
                 'price_data' => [
                     'currency' => 'EUR',
-                    # Create inline Product object
                     'product_data' => [
                         'name' => $product->getName(),
                         'description' => $product->getDescription(),
@@ -67,7 +46,6 @@ class StripeController extends AbstractController
         );
     }
 
-
     #[IsGranted('IS_AUTHENTICATED')]
     #[Route("/checkout", name: 'checkout', methods: ['GET'])]
     public function checkout(): JsonResponse
@@ -75,109 +53,44 @@ class StripeController extends AbstractController
         $user = $this->getUser();
         $stripeSecretKey = $_ENV['STRIPE_SECRET_KEY'] ?? null;
         if ($stripeSecretKey === null) {
-            throw new \InvalidArgumentException('Stripe secret key not found');
+            return $this->json(['error' => 'Stripe secret key not configured'], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
 
         \Stripe\Stripe::setApiKey($stripeSecretKey);
 
+        $products = $this->cartRepository->getProductsForUser($user);
+        if (empty($products)) {
+            return $this->json(['error' => 'Cart is empty'], Response::HTTP_BAD_REQUEST);
+        }
+
         $userId = $user->getUserIdentifier();
         /** @disregard P1013 */
-        $email = $user->getEmail() ?? throw new \InvalidArgumentException('User email not found');
-        $shippingAddressCollection = [
-            'allowed_countries' => ['FR']
-        ];
-
-        $lineItems = $this->getStripeLineItems();
-        if (count($lineItems) == 0) {
-            throw new \InvalidArgumentException('Cart is empty');
+        $email = $user->getEmail();
+        if (!$email) {
+            return $this->json(['error' => 'User email not found'], Response::HTTP_BAD_REQUEST);
         }
 
         $sessionParams = [
             'mode' => 'payment',
-            # Client informations
             'client_reference_id' => $userId,
             'customer_email' => $email,
-            'shipping_address_collection' => $shippingAddressCollection,
-            # Redirection links
+            'shipping_address_collection' => ['allowed_countries' => ['FR']],
             'success_url' => "{$_ENV['APP_URL']}/success",
             'cancel_url' => "{$_ENV['APP_URL']}/",
-            # Cart items
-            'line_items' => $lineItems,
+            'line_items' => $this->getStripeLineItems($products),
         ];
 
         try {
             $session = \Stripe\Checkout\Session::create($sessionParams);
         } catch (\Throwable $e) {
-            throw new RuntimeException('Stripe checkout session creation failed: ' . $e->getMessage(), 0, $e);
+            return $this->json(['error' => 'Stripe checkout session creation failed: ' . $e->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
 
         return $this->json(['url' => $session->url], Response::HTTP_OK);
     }
 
-
-    public function createOrder(): JsonResponse
-    {
-        $user = $this->getUser();
-        $products = $this->getCartedItems();
-
-        if (count($products) == 0) {
-            $error = ['error' => "Cart is empty"];
-            return $this->json($error, Response::HTTP_BAD_REQUEST);
-        }
-
-        $order = new Order($user, $products);
-
-        /** @disregard P1013 */
-        $user->addOrder($order);
-
-        try {
-
-            foreach ($products as $product) {
-                $product->setSold(true);
-                $this->entityManager->persist($product);
-            }
-
-            $this->entityManager->persist($order);
-            $this->entityManager->persist($user);
-            $this->entityManager->flush();
-        } catch (Exception $error) {
-            $data = ['error' => $error->getMessage()];
-            return $this->json($data, Response::HTTP_BAD_REQUEST);
-        }
-
-        $normalized_order = [
-            'id' => $order->getId(),
-            'totalPrice' => $order->getTotalPrice(),
-            'creationDate' => $order->getCreationDate(),
-            'products' => $this->normalizeCart(),
-        ];
-
-        return $this->json($normalized_order, Response::HTTP_OK);
-    }
-
-    private function normalizeCart(): array
-    {
-        $user = $this->getUser();
-        $carted_items = $this->cartRepository->findAll(['user' => $user]);
-
-        $products = array_map(fn (Cart $carted_item) => $carted_item->getProduct(), $carted_items);
-
-        return array_map(function ($product) {
-            return [
-                'id' => $product->getId(),
-                'name' => $product->getName(),
-                'description' => $product->getDescription(),
-                'photo' => $product->getPhoto(),
-                'price' => $product->getPrice(),
-            ];
-        }, $products);
-    }
-
-
-
-
     #[Route("/hook", name: 'hook', methods: ['POST'])]
-    public function stripeHook(\Symfony\Component\HttpFoundation\Request $request): JsonResponse
+    public function stripeHook(Request $request): JsonResponse
     {
         $payload = $request->getContent();
 
@@ -186,7 +99,7 @@ class StripeController extends AbstractController
                 json_decode($payload, true)
             );
         } catch (\UnexpectedValueException $e) {
-            return $this->json(['error' => 'Webhook error while parsing request: ' . $e->getMessage()], 400);
+            return $this->json(['error' => 'Webhook error while parsing request: ' . $e->getMessage()], Response::HTTP_BAD_REQUEST);
         }
 
         $endpoint_secret = $_ENV['STRIPE_WEBHOOK_SECRET'] ?? null;
@@ -201,14 +114,46 @@ class StripeController extends AbstractController
                     $endpoint_secret
                 );
             } catch (\Stripe\Exception\SignatureVerificationException $e) {
-                return $this->json(['error' => 'Webhook signature verification failed: ' . $e->getMessage()], 400);
+                return $this->json(['error' => 'Webhook signature verification failed: ' . $e->getMessage()], Response::HTTP_BAD_REQUEST);
             }
         }
 
         if ($event->type === 'checkout.session.completed') {
-            $this->createOrder();
+            $this->handleCheckoutCompleted();
         }
 
         return $this->json(['status' => 'received'], Response::HTTP_OK);
+    }
+
+    private function handleCheckoutCompleted(): void
+    {
+        $user = $this->getUser();
+        if (!$user) {
+            return;
+        }
+
+        $cartItems = $this->cartRepository->findByUser($user);
+        if (empty($cartItems)) {
+            return;
+        }
+
+        $products = array_map(fn (Cart $item) => $item->getProduct(), $cartItems);
+        $order = new Order($user, $products);
+
+        /** @disregard P1013 */
+        $user->addOrder($order);
+
+        foreach ($products as $product) {
+            $product->setSold(true);
+            $this->entityManager->persist($product);
+        }
+
+        foreach ($cartItems as $item) {
+            $this->entityManager->remove($item);
+        }
+
+        $this->entityManager->persist($order);
+        $this->entityManager->persist($user);
+        $this->entityManager->flush();
     }
 }
