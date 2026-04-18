@@ -7,14 +7,12 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Attribute\Route;
-use Symfony\Component\Form\FormFactoryInterface;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Symfony\Component\Serializer\SerializerInterface;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Exception\ORMException;
 use App\Entity\Product;
-use App\Form\ProductType;
 use App\Repository\ProductRepository;
 
 #[Route('/api')]
@@ -25,73 +23,49 @@ class ProductController extends AbstractController
         private ProductRepository $productRepository,
         private SerializerInterface $serializer,
         private EntityManagerInterface $entityManager,
-        private FormFactoryInterface $formFactory,
     ) {
     }
 
-    private function save(Product $product)
+    private function updateProductFromRequest(Request $request, Product $product): ?JsonResponse
     {
-        try {
-            $this->entityManager->persist($product);
-            $this->entityManager->flush();
-        } catch (ORMException $exception) {
-            $error = ['error' => $exception->getMessage()];
-            return $this->json($error, Response::HTTP_BAD_REQUEST);
-        }
-    }
-
-    private function validate(Request $request, Product $product = null)
-    {
-        /* If the request is a POST we need to create a new product. */
-        if (!$product) {
-            $product = new Product();
-        }
-
-        /* Set the authenticated user as the seller */
-        $product->setSeller($this->getUser());
-
-        $form = $this->createForm(ProductType::class, $product);
-
         $content = json_decode($request->getContent(), true);
-
-        $form->submit($content);
-
-
-        if ($form->isSubmitted() && $form->isValid()) {
-            /** @disregard P1013 */
-            $this->getUser()->addProduct($product);
-
-            return $product;
-        } else {
-            $errors = $this->getFormErrors($form);
-            $response = ['error' => $errors];
-            return $this->json($response, Response::HTTP_BAD_REQUEST);
-        }
-    }
-
-    /**
-     * Retrieves an array of form errors from a given form object.
-     *
-     * @param FormInterface $form The form object to retrieve errors from.
-     * @return array An associative array containing the names of form fields as keys and the corresponding error messages as values.
-     */
-    private function getFormErrors($form): array
-    {
-        $errors = [];
-
-        foreach ($form->getErrors(true, true) as $error) {
-            $errors[$error->getOrigin()->getName()] = $error->getMessage();
+        if (!$content) {
+            return $this->json(['error' => 'Invalid JSON body'], Response::HTTP_BAD_REQUEST);
         }
 
-        return $errors;
+        $requiredFields = ['name', 'description', 'photo', 'price'];
+        foreach ($requiredFields as $field) {
+            if (!isset($content[$field])) {
+                return $this->json(['error' => "Missing required field: $field"], Response::HTTP_BAD_REQUEST);
+            }
+        }
+
+        $product->setName($content['name']);
+        $product->setDescription($content['description']);
+        $product->setPhoto($content['photo']);
+        $product->setPrice((float) $content['price']);
+
+        return null;
     }
 
     #[IsGranted('IS_AUTHENTICATED')]
     #[Route(path: '/products', methods: ['POST'])]
     public function create(Request $request): JsonResponse
     {
-        $product = $this->validate($request);
-        $this->save($product);
+        $product = new Product();
+        $product->setSeller($this->getUser());
+
+        $error = $this->updateProductFromRequest($request, $product);
+        if ($error) {
+            return $error;
+        }
+
+        try {
+            $this->entityManager->persist($product);
+            $this->entityManager->flush();
+        } catch (ORMException $exception) {
+            return $this->json(['error' => $exception->getMessage()], Response::HTTP_BAD_REQUEST);
+        }
 
         return $this->json($product, Response::HTTP_CREATED, [], ['groups' => ['api']]);
     }
@@ -111,15 +85,28 @@ class ProductController extends AbstractController
     #[Route('/products/{id}', methods: ['GET'])]
     public function get(Product $product): JsonResponse
     {
-        return $this->json($product->toArray(), Response::HTTP_OK, [], ['groups' => ['api']]);
+        return $this->json($product->toArray(), Response::HTTP_OK);
     }
 
     #[IsGranted('IS_AUTHENTICATED')]
     #[Route('/products/{id}', methods: ['PUT'])]
     public function update(Request $request, Product $product): JsonResponse
     {
-        $product = $this->validate($request, $product);
-        $this->save($product);
+        if ($product->getSeller() !== $this->getUser()) {
+            return $this->json(['error' => 'You are not the owner of this product'], Response::HTTP_FORBIDDEN);
+        }
+
+        $error = $this->updateProductFromRequest($request, $product);
+        if ($error) {
+            return $error;
+        }
+
+        try {
+            $this->entityManager->persist($product);
+            $this->entityManager->flush();
+        } catch (ORMException $exception) {
+            return $this->json(['error' => $exception->getMessage()], Response::HTTP_BAD_REQUEST);
+        }
 
         return $this->json($product, Response::HTTP_OK, [], ['groups' => ['api']]);
     }
@@ -128,16 +115,18 @@ class ProductController extends AbstractController
     #[Route('/products/{id}', name: 'delete_product', methods: ['DELETE'])]
     public function delete(Product $product): JsonResponse
     {
+        if ($product->getSeller() !== $this->getUser()) {
+            return $this->json(['error' => 'You are not the owner of this product'], Response::HTTP_FORBIDDEN);
+        }
+
         try {
             $this->entityManager->remove($product);
             $this->entityManager->flush();
         } catch (ORMException $exception) {
-            $error = ['error' => 'Cannot delete product'];
-            return $this->json($error, Response::HTTP_BAD_REQUEST);
+            return $this->json(['error' => 'Cannot delete product'], Response::HTTP_BAD_REQUEST);
         }
 
-        $data = ['message' => 'Product deleted successfully'];
-        return $this->json(data: $data, status: Response::HTTP_ACCEPTED);
+        return $this->json(['message' => 'Product deleted successfully'], Response::HTTP_ACCEPTED);
     }
 
     #[IsGranted('IS_AUTHENTICATED')]
@@ -145,8 +134,11 @@ class ProductController extends AbstractController
     public function getProduct(Request $request): JsonResponse
     {
         $user = $this->entityManager->getRepository(User::class)->findOneBy(['login' => $request->attributes->get('login')]);
-        $products = $user->getProducts();
 
-        return $this->json($products, Response::HTTP_OK, [], ['groups' => ['api']]);
+        if (!$user) {
+            return $this->json(['error' => 'User not found'], Response::HTTP_NOT_FOUND);
+        }
+
+        return $this->json($user->getProducts(), Response::HTTP_OK, [], ['groups' => ['api']]);
     }
 }
